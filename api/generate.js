@@ -100,7 +100,7 @@ let geminiData;
 try {
   geminiData = JSON.parse(geminiText);
 } catch(e) {
-  throw new Error("Resposta do Gemini: " + geminiText.substring(0, 200));
+  throw new Error(geminiText.substring(0, 500));
 }
 if (geminiData.error) throw new Error(geminiData.error.message);
 
