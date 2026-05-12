@@ -71,7 +71,7 @@ Reply ONLY with the prompt, nothing else.`,
   // Passo 2: Nano Banana gera a imagem
   const model = plan === "pro"
     ? "gemini-3-pro-image-preview"
-    : "gemini-2.0-flash-preview-image-generation";
+    : "gemini-2.0-flash-exp;
 
   const endpoint = `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${process.env.GOOGLE_AI_KEY}`;
 
