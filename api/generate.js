@@ -95,8 +95,14 @@ Reply ONLY with the prompt, nothing else.`,
       }),
     });
 
-    const geminiData = await geminiRes.json();
-    if (geminiData.error) throw new Error(geminiData.error.message);
+    const geminiText = await geminiRes.text();
+let geminiData;
+try {
+  geminiData = JSON.parse(geminiText);
+} catch(e) {
+  throw new Error("Resposta do Gemini: " + geminiText.substring(0, 200));
+}
+if (geminiData.error) throw new Error(geminiData.error.message);
 
     const parts = geminiData.candidates?.[0]?.content?.parts || [];
     const imgPart = parts.find(p => p.inlineData?.mimeType?.startsWith("image/"));
