@@ -67,7 +67,7 @@ export default async function handler(req, res) {
     return res.status(500).json({ error: "Erro ao analisar produto: " + err.message });
   }
 
-  const endpoint = "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash-exp:generateContent?key=" + process.env.GOOGLE_AI_KEY;
+  const endpoint = "https://generativelanguage.googleapis.com/v1beta/models/gemini-3.1-flash-image-preview:generateContent?key=" + process.env.GOOGLE_AI_KEY;
 
   try {
     const geminiRes = await fetch(endpoint, {
