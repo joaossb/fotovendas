@@ -1,18 +1,19 @@
 import { useState, useRef, useEffect } from "react";
-import antes1 from "./assets/antes 1.jpg";
-import depois1 from "./assets/depois 1.jpg";
-import antes2 from "./assets/antes 2.jpg";
-import depois2 from "./assets/depois 2.jpg";
-const PLANS = [
-  { id: "starter", name: "Kit Início",    credits: 10,  price: "R$ 19,90", perUnit: "R$ 1,99/foto", badge: null,           features: ["10 gerações de imagem", "IA especializada cardápio", "Créditos que não expiram", "Download instantâneo"] },
-  { id: "pro",     name: "Kit Negócio",   credits: 30,  price: "R$ 44,90", perUnit: "R$ 1,49/foto", badge: "Mais vendido",  features: ["30 gerações de imagem", "IA de alta fidelidade", "Formatos iFood e Stories", "Créditos que não expiram"] },
-  { id: "agency",  name: "Kit Agência",   credits: 100, price: "R$ 99,90", perUnit: "R$ 0,99/foto", badge: "Melhor custo",  features: ["100 gerações de imagem", "IA máxima qualidade", "Uso em anúncios pagos", "Suporte prioritário"] },
-];
-
+import { supabase } from "./supabase";
+import antes1 from "./assets/antes1.jpg";
+import depois1 from "./assets/depois1.jpg";
+import antes2 from "./assets/antes2.jpg";
+import depois2 from "./assets/depois2.jpg";
 
 const ANTES_DEPOIS = [
   { antes: antes1, depois: depois1, label: "Esfiha / Wrap" },
   { antes: antes2, depois: depois2, label: "Pizza" },
+];
+
+const PLANS = [
+  { id: "starter", name: "Kit Início",  credits: 10,  price: "R$ 19,90", perUnit: "R$ 1,99/foto", badge: null,          features: ["10 gerações de imagem", "IA especializada cardápio", "Créditos que não expiram", "Download instantâneo"] },
+  { id: "pro",     name: "Kit Negócio", credits: 30,  price: "R$ 44,90", perUnit: "R$ 1,49/foto", badge: "Mais vendido", features: ["30 gerações de imagem", "IA de alta fidelidade", "Formatos iFood e Stories", "Créditos que não expiram"] },
+  { id: "agency",  name: "Kit Agência", credits: 100, price: "R$ 99,90", perUnit: "R$ 0,99/foto", badge: "Melhor custo", features: ["100 gerações de imagem", "IA máxima qualidade", "Uso em anúncios pagos", "Suporte prioritário"] },
 ];
 
 const DEPOIMENTOS = [
@@ -24,7 +25,7 @@ const DEPOIMENTOS = [
 const FAQ = [
   { q: "Como funciona?", r: "Você envia a foto do seu prato tirada pelo celular. Nossa IA recria a iluminação e o cenário, entregando uma foto profissional pronta para iFood e redes sociais em segundos." },
   { q: "Os créditos expiram?", r: "Não! Seus créditos são vitalícios. Compre hoje e use quando quiser — sem pressão." },
-  { q: "O resultado é fiel ao meu prato?", r: "Sim. Nossa IA é treinada para gastronomia e preserva os ingredientes, porções e apresentação do prato original. Nada de enganar o cliente." },
+  { q: "O resultado é fiel ao meu prato?", r: "Sim. Nossa IA é treinada para gastronomia e preserva os ingredientes, porções e apresentação do prato original." },
   { q: "Precisa instalar algum app?", r: "Não. Funciona direto no navegador, no celular ou no computador." },
 ];
 
@@ -39,12 +40,8 @@ function Logo({ onClick, dark }) {
   );
 }
 
-function BtnPrimary({ children, onClick, style }) {
-  return <button onClick={onClick} style={{ display: "inline-flex", alignItems: "center", justifyContent: "center", gap: 8, background: "linear-gradient(135deg,#FF5A1F,#FF8C42)", color: "#fff", border: "none", borderRadius: 50, padding: "13px 30px", fontSize: 15, fontWeight: 700, cursor: "pointer", boxShadow: "0 4px 20px rgba(255,90,31,.4)", ...style }}>{children}</button>;
-}
-
-function BtnOutline({ children, onClick, style }) {
-  return <button onClick={onClick} style={{ display: "inline-flex", alignItems: "center", justifyContent: "center", gap: 8, background: "transparent", color: "#fff", border: "2px solid rgba(255,255,255,.35)", borderRadius: 50, padding: "13px 30px", fontSize: 15, fontWeight: 600, cursor: "pointer", ...style }}>{children}</button>;
+function BtnPrimary({ children, onClick, style, disabled }) {
+  return <button onClick={onClick} disabled={disabled} style={{ display: "inline-flex", alignItems: "center", justifyContent: "center", gap: 8, background: disabled ? "#888" : "linear-gradient(135deg,#FF5A1F,#FF8C42)", color: "#fff", border: "none", borderRadius: 50, padding: "13px 30px", fontSize: 15, fontWeight: 700, cursor: disabled ? "not-allowed" : "pointer", boxShadow: disabled ? "none" : "0 4px 20px rgba(255,90,31,.4)", ...style }}>{children}</button>;
 }
 
 function SliderAntesDep({ antes, depois, label }) {
@@ -72,11 +69,8 @@ function SliderAntesDep({ antes, depois, label }) {
   return (
     <div ref={ref}
       style={{ position: "relative", borderRadius: 16, overflow: "hidden", cursor: "col-resize", userSelect: "none", aspectRatio: "1/1", background: "#000", touchAction: "none" }}
-      onMouseDown={onMouseDown}
-      onMouseMove={onMouseMove}
-      onTouchStart={onTouchStart}
-      onTouchMove={onTouchMove}
-      onTouchEnd={onTouchEnd}>
+      onMouseDown={onMouseDown} onMouseMove={onMouseMove}
+      onTouchStart={onTouchStart} onTouchMove={onTouchMove} onTouchEnd={onTouchEnd}>
       <img src={depois} style={{ position: "absolute", inset: 0, width: "100%", height: "100%", objectFit: "cover" }} alt="depois" draggable="false" />
       <div style={{ position: "absolute", inset: 0, overflow: "hidden", width: pos + "%" }}>
         <img src={antes} style={{ position: "absolute", top: 0, left: 0, width: ref.current ? ref.current.offsetWidth + "px" : "100%", height: "100%", objectFit: "cover" }} alt="antes" draggable="false" />
@@ -104,19 +98,130 @@ function FAQItem({ q, r }) {
   );
 }
 
+// ── TELA DE LOGIN / CADASTRO ──────────────────────────────────
+function AuthScreen({ onSuccess }) {
+  const [mode,     setMode]     = useState("login");
+  const [email,    setEmail]    = useState("");
+  const [password, setPassword] = useState("");
+  const [loading,  setLoading]  = useState(false);
+  const [error,    setError]    = useState(null);
+  const [msg,      setMsg]      = useState(null);
+
+  async function handleSubmit() {
+    if (!email || !password) { setError("Preencha e-mail e senha."); return; }
+    setLoading(true); setError(null); setMsg(null);
+    if (mode === "login") {
+      const { error } = await supabase.auth.signInWithPassword({ email, password });
+      if (error) { setError("E-mail ou senha incorretos."); setLoading(false); return; }
+      onSuccess();
+    } else {
+      const { error } = await supabase.auth.signUp({ email, password });
+      if (error) { setError(error.message); setLoading(false); return; }
+      setMsg("Cadastro realizado! Verifique seu e-mail para confirmar.");
+    }
+    setLoading(false);
+  }
+
+  return (
+    <div style={{ minHeight: "100vh", background: COR.escuro, display: "flex", alignItems: "center", justifyContent: "center", padding: "20px", fontFamily: "system-ui,sans-serif" }}>
+      <div style={{ width: "100%", maxWidth: 420 }}>
+        <div style={{ textAlign: "center", marginBottom: 36 }}>
+          <div style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: 8, marginBottom: 24 }}>
+            <div style={{ width: 36, height: 36, borderRadius: 10, background: "linear-gradient(135deg,#FF5A1F,#FFBA08)", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 18 }}>🍽️</div>
+            <span style={{ fontWeight: 800, fontSize: 20, color: "#fff" }}>foto<span style={{ color: COR.laranja }}>cardápio</span></span>
+          </div>
+          <h2 style={{ fontSize: 24, fontWeight: 800, color: "#fff", marginBottom: 6 }}>
+            {mode === "login" ? "Entrar na sua conta" : "Criar conta grátis"}
+          </h2>
+          <p style={{ fontSize: 14, color: "#888" }}>
+            {mode === "login" ? "Bem-vindo de volta!" : "1 foto gratuita para começar"}
+          </p>
+        </div>
+
+        <div style={{ background: COR.card, borderRadius: 20, padding: "32px 28px", border: "1px solid #2a2a2a" }}>
+          <div style={{ marginBottom: 16 }}>
+            <label style={{ fontSize: 13, fontWeight: 600, color: "#aaa", display: "block", marginBottom: 6 }}>E-mail</label>
+            <input type="email" value={email} onChange={e => setEmail(e.target.value)}
+              placeholder="seu@email.com"
+              style={{ width: "100%", background: "#111", border: "1px solid #333", borderRadius: 10, padding: "12px 16px", fontSize: 14, color: "#fff", outline: "none", boxSizing: "border-box" }} />
+          </div>
+          <div style={{ marginBottom: 24 }}>
+            <label style={{ fontSize: 13, fontWeight: 600, color: "#aaa", display: "block", marginBottom: 6 }}>Senha</label>
+            <input type="password" value={password} onChange={e => setPassword(e.target.value)}
+              placeholder="mínimo 6 caracteres"
+              onKeyDown={e => e.key === "Enter" && handleSubmit()}
+              style={{ width: "100%", background: "#111", border: "1px solid #333", borderRadius: 10, padding: "12px 16px", fontSize: 14, color: "#fff", outline: "none", boxSizing: "border-box" }} />
+          </div>
+
+          {error && <div style={{ background: "#2a0a0a", border: "1px solid #5a1a1a", borderRadius: 10, padding: "10px 14px", fontSize: 13, color: "#ff8888", marginBottom: 16 }}>❌ {error}</div>}
+          {msg   && <div style={{ background: "#0a2a0a", border: "1px solid #1a5a1a", borderRadius: 10, padding: "10px 14px", fontSize: 13, color: "#88ff88", marginBottom: 16 }}>✅ {msg}</div>}
+
+          <BtnPrimary onClick={handleSubmit} disabled={loading} style={{ width: "100%", padding: "14px", fontSize: 15 }}>
+            {loading ? "Aguarde..." : mode === "login" ? "Entrar" : "Criar conta grátis"}
+          </BtnPrimary>
+
+          <div style={{ textAlign: "center", marginTop: 20 }}>
+            <span style={{ fontSize: 13, color: "#666" }}>
+              {mode === "login" ? "Não tem conta? " : "Já tem conta? "}
+            </span>
+            <span style={{ fontSize: 13, color: COR.laranja, cursor: "pointer", fontWeight: 600 }}
+              onClick={() => { setMode(mode === "login" ? "register" : "login"); setError(null); setMsg(null); }}>
+              {mode === "login" ? "Cadastre-se grátis" : "Entrar"}
+            </span>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// ── APP PRINCIPAL ─────────────────────────────────────────────
 export default function App() {
   const [screen,      setScreen]      = useState("home");
-  const [curPlan,     setCurPlan]     = useState("starter");
-  const [credits,     setCredits]     = useState(0);
+  const [user,        setUser]        = useState(null);
+  const [profile,     setProfile]     = useState(null);
+  const [loadingAuth, setLoadingAuth] = useState(true);
   const [previewSrc,  setPreviewSrc]  = useState(null);
   const [previewB64,  setPreviewB64]  = useState(null);
   const [previewMime, setPreviewMime] = useState("image/jpeg");
+  const [descricao,   setDescricao]   = useState("");
   const [loading,     setLoading]     = useState(false);
   const [loadMsg,     setLoadMsg]     = useState("");
   const [resultSrc,   setResultSrc]   = useState(null);
   const [error,       setError]       = useState(null);
-  const [descricao,   setDescricao]   = useState("");
+  const [showAuth,    setShowAuth]    = useState(false);
   const fileRef = useRef();
+
+  // Verificar sessão ao carregar
+  useEffect(function() {
+    supabase.auth.getSession().then(function({ data: { session } }) {
+      if (session) {
+        setUser(session.user);
+        loadProfile(session.user.id);
+      }
+      setLoadingAuth(false);
+    });
+    const { data: { subscription } } = supabase.auth.onAuthStateChange(function(event, session) {
+      if (session) {
+        setUser(session.user);
+        loadProfile(session.user.id);
+      } else {
+        setUser(null);
+        setProfile(null);
+      }
+    });
+    return function() { subscription.unsubscribe(); };
+  }, []);
+
+  async function loadProfile(userId) {
+    const { data } = await supabase.from("profiles").select("*").eq("id", userId).single();
+    if (data) setProfile(data);
+  }
+
+  async function signOut() {
+    await supabase.auth.signOut();
+    setScreen("home");
+  }
 
   function handleFile(e) {
     var f = e.target.files[0]; if (!f) return;
@@ -127,20 +232,31 @@ export default function App() {
     reader.readAsDataURL(f);
   }
 
-function generate() {
+  async function generate() {
     if (!previewB64) { setError("Envie uma imagem antes de gerar."); return; }
+    if (!user) { setShowAuth(true); return; }
+    if (profile && profile.credits <= 0) { setError("Você não tem créditos. Adquira um plano para continuar."); return; }
+
     setLoading(true); setError(null); setResultSrc(null); setLoadMsg("Analisando o prato...");
-    fetch("/api/generate", {
-      method: "POST", headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ imageBase64: previewB64, mimeType: previewMime, category: "cardapio", plan: "basic", descricao: descricao.trim() }),
-    })
-    .then(function(r) { return r.json(); })
-    .then(function(data) {
+    try {
+      const res = await fetch("/api/generate", {
+        method: "POST", headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ imageBase64: previewB64, mimeType: previewMime, category: "cardapio", plan: "basic", descricao: descricao.trim() }),
+      });
+      setLoadMsg("Gerando foto profissional...");
+      const data = await res.json();
       if (data.error) throw new Error(data.error);
+
+      // Debitar 1 crédito
+      const newCredits = (profile?.credits || 1) - 1;
+      await supabase.from("profiles").update({ credits: newCredits }).eq("id", user.id);
+      setProfile(function(p) { return { ...p, credits: newCredits }; });
+
       setResultSrc("data:" + data.mimeType + ";base64," + data.image);
-      setLoading(false);
-    })
-    .catch(function(err) { setError(err.message || "Erro ao gerar. Tente novamente."); setLoading(false); });
+    } catch (err) {
+      setError(err.message || "Erro ao gerar. Tente novamente.");
+    }
+    setLoading(false);
   }
 
   function download() {
@@ -148,16 +264,34 @@ function generate() {
     var a = document.createElement("a"); a.href = resultSrc; a.download = "fotocardapio-" + Date.now() + ".jpg"; a.click();
   }
 
-  // ── HOME ─────────────────────────────────────────────────────
+  if (loadingAuth) return (
+    <div style={{ minHeight: "100vh", background: COR.escuro, display: "flex", alignItems: "center", justifyContent: "center" }}>
+      <div style={{ color: "#fff", fontSize: 16 }}>Carregando...</div>
+    </div>
+  );
+
+  if (showAuth) return <AuthScreen onSuccess={function() { setShowAuth(false); setScreen("app"); }} />;
+
+  // ── HOME ───────────────────────────────────────────────────
   if (screen === "home") return (
     <div style={{ fontFamily: "'Inter', system-ui, sans-serif", color: COR.escuro, background: "#fff", width: "100vw", maxWidth: "100%", overflowX: "hidden", margin: 0, padding: 0 }}>
-
-      {/* NAV */}
       <nav style={{ position: "fixed", top: 0, left: 0, right: 0, zIndex: 100, background: "rgba(13,13,13,.92)", backdropFilter: "blur(12px)", borderBottom: "1px solid rgba(255,255,255,.08)", padding: "0 6%", height: 64, display: "flex", alignItems: "center", justifyContent: "space-between" }}>
         <Logo onClick={() => setScreen("home")} dark />
-        <div style={{ display: "flex", gap: 10 }}>
-          <button style={{ background: "none", border: "1px solid rgba(255,255,255,.2)", color: "#fff", borderRadius: 50, padding: "8px 20px", fontSize: 13, fontWeight: 500, cursor: "pointer" }} onClick={() => setScreen("plans")}>Planos</button>
-          <BtnPrimary onClick={() => setScreen("app")} style={{ padding: "9px 22px", fontSize: 13 }}>Testar grátis →</BtnPrimary>
+        <div style={{ display: "flex", gap: 10, alignItems: "center" }}>
+          {user ? (
+            <>
+              <span style={{ fontSize: 13, color: "#aaa" }}>
+                {profile?.credits ?? 0} crédito{profile?.credits !== 1 ? "s" : ""}
+              </span>
+              <button style={{ background: "none", border: "1px solid #333", color: "#aaa", borderRadius: 50, padding: "8px 18px", fontSize: 13, cursor: "pointer" }} onClick={() => setScreen("app")}>Gerar foto</button>
+              <button style={{ background: "none", border: "none", color: "#666", fontSize: 13, cursor: "pointer" }} onClick={signOut}>Sair</button>
+            </>
+          ) : (
+            <>
+              <button style={{ background: "none", border: "1px solid rgba(255,255,255,.2)", color: "#fff", borderRadius: 50, padding: "8px 20px", fontSize: 13, fontWeight: 500, cursor: "pointer" }} onClick={() => setShowAuth(true)}>Entrar</button>
+              <BtnPrimary onClick={() => setShowAuth(true)} style={{ padding: "9px 22px", fontSize: 13 }}>Testar grátis →</BtnPrimary>
+            </>
+          )}
         </div>
       </nav>
 
@@ -175,8 +309,8 @@ function generate() {
             Tire uma foto com o celular. Nossa IA transforma em imagem profissional de cardápio em segundos — fiel ao seu prato.
           </p>
           <div style={{ display: "flex", gap: 14, justifyContent: "center", flexWrap: "wrap" }}>
-            <BtnPrimary onClick={() => setScreen("app")} style={{ fontSize: 16, padding: "15px 36px" }}>✨ Testar agora — é grátis</BtnPrimary>
-            <BtnOutline onClick={() => {}} style={{ fontSize: 16, padding: "15px 36px" }}>Ver exemplos ↓</BtnOutline>
+            <BtnPrimary onClick={() => user ? setScreen("app") : setShowAuth(true)} style={{ fontSize: 16, padding: "15px 36px" }}>✨ Testar agora — é grátis</BtnPrimary>
+            <button onClick={() => {}} style={{ display: "inline-flex", alignItems: "center", gap: 8, background: "transparent", color: "#fff", border: "2px solid rgba(255,255,255,.35)", borderRadius: 50, padding: "15px 36px", fontSize: 15, fontWeight: 600, cursor: "pointer" }}>Ver exemplos ↓</button>
           </div>
           <div style={{ display: "flex", justifyContent: "center", gap: 40, marginTop: 56, flexWrap: "wrap" }}>
             {[["1.000+","fotos geradas"],["~30s","por geração"],["100%","fiel ao prato"]].map(function(item, i) {
@@ -213,12 +347,7 @@ function generate() {
             <h2 style={{ fontSize: 34, fontWeight: 800, color: COR.escuro, letterSpacing: -.5 }}>Simples assim</h2>
           </div>
           <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit,minmax(210px,1fr))", gap: 24 }}>
-            {[
-              ["📱","Tire uma foto","Com o celular mesmo. Não precisa de iluminação especial."],
-              ["⬆️","Faça o upload","Envie a imagem direto no site, em segundos."],
-              ["🤖","IA transforma","Em até 30s, a IA gera a versão profissional do seu prato."],
-              ["📲","Use em tudo","iFood, WhatsApp, Instagram, cardápio impresso e mais."],
-            ].map(function(item, i) {
+            {[["📱","Tire uma foto","Com o celular mesmo."],["⬆️","Faça o upload","Envie a imagem no site."],["🤖","IA transforma","Resultado profissional em 30s."],["📲","Use em tudo","iFood, WhatsApp, Instagram."]].map(function(item, i) {
               return (
                 <div key={i} style={{ background: COR.fundo, borderRadius: 20, padding: "32px 24px", textAlign: "center" }}>
                   <div style={{ width: 52, height: 52, borderRadius: 14, background: "linear-gradient(135deg,rgba(255,90,31,.12),rgba(255,186,8,.15))", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 24, margin: "0 auto 16px" }}>{item[0]}</div>
@@ -260,12 +389,12 @@ function generate() {
       </section>
 
       {/* PLANOS */}
-      <section id="precos" style={{ background: COR.escuro, padding: "80px 6%", width: "100%", boxSizing: "border-box" }}>
+      <section style={{ background: COR.escuro, padding: "80px 6%", width: "100%", boxSizing: "border-box" }}>
         <div style={{ maxWidth: 1000, margin: "0 auto" }}>
           <div style={{ textAlign: "center", marginBottom: 52 }}>
             <div style={{ display: "inline-block", background: "rgba(255,90,31,.15)", border: "1px solid rgba(255,90,31,.3)", color: "#FF8C42", fontSize: 12, fontWeight: 700, padding: "5px 14px", borderRadius: 20, marginBottom: 14, textTransform: "uppercase", letterSpacing: 1 }}>Preços</div>
             <h2 style={{ fontSize: 34, fontWeight: 800, color: "#fff", letterSpacing: -.5 }}>Créditos que não expiram</h2>
-            <p style={{ color: "#888", fontSize: 15, marginTop: 8 }}>Pague por uso. Sem mensalidade. Sem surpresas.</p>
+            <p style={{ color: "#888", fontSize: 15, marginTop: 8 }}>Pague por uso. Sem mensalidade.</p>
           </div>
           <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit,minmax(240px,1fr))", gap: 20 }}>
             {PLANS.map(function(p) {
@@ -282,12 +411,12 @@ function generate() {
                       return <li key={i} style={{ fontSize: 13, color: "#ccc", padding: "5px 0", display: "flex", gap: 10 }}><span style={{ color: COR.laranja, fontWeight: 700 }}>✓</span>{f}</li>;
                     })}
                   </ul>
-                  <BtnPrimary onClick={() => setScreen("app")} style={{ width: "100%", padding: "13px" }}>Começar agora</BtnPrimary>
+                  <BtnPrimary onClick={() => user ? setScreen("app") : setShowAuth(true)} style={{ width: "100%", padding: "13px" }}>Começar agora</BtnPrimary>
                 </div>
               );
             })}
           </div>
-          <p style={{ textAlign: "center", color: "#555", fontSize: 13, marginTop: 24 }}>💳 Pagamento seguro · Créditos vitalícios · Suporte via WhatsApp</p>
+          <p style={{ textAlign: "center", color: "#555", fontSize: 13, marginTop: 24 }}>💳 Pagamento seguro · Créditos vitalícios</p>
         </div>
       </section>
 
@@ -304,10 +433,9 @@ function generate() {
       {/* CTA FINAL */}
       <section style={{ background: "linear-gradient(135deg,#FF5A1F,#FF8C42)", padding: "80px 6%", textAlign: "center", width: "100%", boxSizing: "border-box" }}>
         <h2 style={{ fontSize: 38, fontWeight: 900, color: "#fff", marginBottom: 12, letterSpacing: -.5 }}>Pronto para vender mais?</h2>
-        <p style={{ fontSize: 16, color: "rgba(255,255,255,.85)", marginBottom: 36, maxWidth: 480, margin: "0 auto 36px" }}>
-          Transforme as fotos do seu cardápio agora mesmo. Teste grátis, sem compromisso.
-        </p>
-        <button style={{ background: "#fff", color: COR.laranja, border: "none", borderRadius: 50, padding: "16px 44px", fontSize: 16, fontWeight: 800, cursor: "pointer", boxShadow: "0 4px 24px rgba(0,0,0,.2)" }} onClick={() => setScreen("app")}>
+        <p style={{ fontSize: 16, color: "rgba(255,255,255,.85)", marginBottom: 36, maxWidth: 480, margin: "0 auto 36px" }}>Transforme as fotos do seu cardápio agora mesmo.</p>
+        <button style={{ background: "#fff", color: COR.laranja, border: "none", borderRadius: 50, padding: "16px 44px", fontSize: 16, fontWeight: 800, cursor: "pointer", boxShadow: "0 4px 24px rgba(0,0,0,.2)" }}
+          onClick={() => user ? setScreen("app") : setShowAuth(true)}>
           ✨ Fazer minha primeira foto
         </button>
       </section>
@@ -324,7 +452,7 @@ function generate() {
     <div style={{ fontFamily: "'Inter', system-ui, sans-serif", background: COR.escuro, minHeight: "100vh", width: "100%" }}>
       <nav style={{ padding: "0 6%", height: 64, display: "flex", alignItems: "center", justifyContent: "space-between", borderBottom: "1px solid #1a1a1a" }}>
         <Logo onClick={() => setScreen("home")} dark />
-        <BtnPrimary onClick={() => setScreen("app")} style={{ padding: "9px 22px", fontSize: 13 }}>Gerar foto →</BtnPrimary>
+        <BtnPrimary onClick={() => user ? setScreen("app") : setShowAuth(true)} style={{ padding: "9px 22px", fontSize: 13 }}>Gerar foto →</BtnPrimary>
       </nav>
       <div style={{ padding: "60px 6%", maxWidth: 1000, margin: "0 auto" }}>
         <div style={{ textAlign: "center", marginBottom: 52 }}>
@@ -346,7 +474,7 @@ function generate() {
                     return <li key={i} style={{ fontSize: 13, color: "#ccc", padding: "5px 0", display: "flex", gap: 10 }}><span style={{ color: COR.laranja, fontWeight: 700 }}>✓</span>{f}</li>;
                   })}
                 </ul>
-                <BtnPrimary onClick={() => setScreen("app")} style={{ width: "100%", padding: "13px" }}>Começar agora</BtnPrimary>
+                <BtnPrimary onClick={() => user ? setScreen("app") : setShowAuth(true)} style={{ width: "100%", padding: "13px" }}>Começar agora</BtnPrimary>
               </div>
             );
           })}
@@ -360,7 +488,15 @@ function generate() {
     <div style={{ fontFamily: "'Inter', system-ui, sans-serif", background: COR.escuro, minHeight: "100vh", width: "100%", color: "#fff" }}>
       <nav style={{ padding: "0 6%", height: 64, display: "flex", alignItems: "center", justifyContent: "space-between", borderBottom: "1px solid #1a1a1a" }}>
         <Logo onClick={() => setScreen("home")} dark />
-        <button style={{ background: "none", border: "1px solid #333", color: "#aaa", borderRadius: 50, padding: "8px 20px", fontSize: 13, cursor: "pointer" }} onClick={() => setScreen("plans")}>Ver planos</button>
+        <div style={{ display: "flex", alignItems: "center", gap: 16 }}>
+          {user && profile && (
+            <div style={{ display: "flex", alignItems: "center", gap: 8, background: "#1a1a1a", border: "1px solid #2a2a2a", borderRadius: 20, padding: "6px 14px" }}>
+              <span style={{ fontSize: 13, color: COR.laranja, fontWeight: 700 }}>{profile.credits}</span>
+              <span style={{ fontSize: 13, color: "#666" }}>crédito{profile.credits !== 1 ? "s" : ""}</span>
+            </div>
+          )}
+          <button style={{ background: "none", border: "1px solid #333", color: "#aaa", borderRadius: 50, padding: "8px 20px", fontSize: 13, cursor: "pointer" }} onClick={() => setScreen("plans")}>Ver planos</button>
+        </div>
       </nav>
 
       <div style={{ padding: "48px 6%", maxWidth: 900, margin: "0 auto" }}>
@@ -377,7 +513,7 @@ function generate() {
                 <div>
                   <div style={{ fontSize: 52, marginBottom: 14 }}>📸</div>
                   <p style={{ fontSize: 16, fontWeight: 700, color: "#fff", marginBottom: 6 }}>Envie a foto do prato</p>
-                  <p style={{ fontSize: 13, color: "#666", marginBottom: 24 }}>JPG, PNG ou WEBP · Qualquer qualidade</p>
+                  <p style={{ fontSize: 13, color: "#666", marginBottom: 24 }}>JPG, PNG ou WEBP</p>
                   <BtnPrimary onClick={() => fileRef.current.click()}>Escolher imagem</BtnPrimary>
                   <input ref={fileRef} type="file" accept="image/*" style={{ display: "none" }} onChange={handleFile} />
                   <p style={{ fontSize: 11, color: "#444", marginTop: 14 }}>Não precisa ser perfeita — a IA cuida do resto</p>
@@ -385,20 +521,17 @@ function generate() {
               ) : (
                 <div>
                   <img src={previewSrc} style={{ maxHeight: 220, maxWidth: "100%", borderRadius: 12, marginBottom: 12, objectFit: "contain" }} alt="preview" />
-                  <span style={{ fontSize: 12, color: "#666", cursor: "pointer", textDecoration: "underline" }} onClick={() => { setPreviewSrc(null); setPreviewB64(null); setResultSrc(null); }}>Trocar foto</span>
+                  <span style={{ fontSize: 12, color: "#666", cursor: "pointer", textDecoration: "underline" }}
+                    onClick={() => { setPreviewSrc(null); setPreviewB64(null); setResultSrc(null); }}>Trocar foto</span>
                 </div>
               )}
             </div>
             {previewSrc && (
-                <div style={{ marginTop: 14 }}>
-                  <input
-                    type="text"
-                    placeholder='Opcional: descreva o prato (ex: "esfiha de carne e queijo")'
-                    value={descricao}
-                    onChange={function(e) { setDescricao(e.target.value); }}
-                    style={{ width: "100%", background: "#111", border: "1px solid #333", borderRadius: 12, padding: "12px 16px", fontSize: 14, color: "#fff", marginBottom: 12, outline: "none" }}
-                  />
-                  <BtnPrimary onClick={generate} style={{ width: "100%", padding: "15px", fontSize: 16, opacity: loading ? .75 : 1, pointerEvents: loading ? "none" : "auto" }}>
+              <div style={{ marginTop: 14 }}>
+                <input type="text" value={descricao} onChange={e => setDescricao(e.target.value)}
+                  placeholder='Opcional: descreva o prato (ex: "esfiha de carne e queijo")'
+                  style={{ width: "100%", background: "#111", border: "1px solid #333", borderRadius: 12, padding: "12px 16px", fontSize: 14, color: "#fff", marginBottom: 12, outline: "none", boxSizing: "border-box" }} />
+                <BtnPrimary onClick={generate} disabled={loading} style={{ width: "100%", padding: "15px", fontSize: 16 }}>
                   {loading ? loadMsg + "..." : "✨ Gerar foto profissional"}
                 </BtnPrimary>
                 {loading && <p style={{ fontSize: 12, color: "#666", textAlign: "center", marginTop: 8 }}>⏳ Aguarde até 30 segundos...</p>}
@@ -417,7 +550,7 @@ function generate() {
                 <div style={{ padding: 14, display: "flex", gap: 10 }}>
                   <BtnPrimary onClick={download} style={{ flex: 1, padding: "12px" }}>⬇ Baixar foto</BtnPrimary>
                   <button style={{ flex: 1, background: "none", border: "1px solid #333", color: "#aaa", borderRadius: 50, fontSize: 14, cursor: "pointer" }}
-                    onClick={() => { setResultSrc(null); setPreviewSrc(null); setPreviewB64(null); }}>
+                    onClick={() => { setResultSrc(null); setPreviewSrc(null); setPreviewB64(null); setDescricao(""); }}>
                     Nova foto
                   </button>
                 </div>
