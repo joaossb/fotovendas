@@ -45,26 +45,44 @@ function BtnOutline({ children, onClick, style }) {
 
 function SliderAntesDep({ antes, depois, label }) {
   const [pos, setPos] = useState(50);
+  const [dragging, setDragging] = useState(false);
   const ref = useRef();
-  function move(clientX) {
+
+  function getPos(clientX) {
     const rect = ref.current.getBoundingClientRect();
-    const p = Math.min(100, Math.max(0, ((clientX - rect.left) / rect.width) * 100));
-    setPos(p);
+    return Math.min(100, Math.max(0, ((clientX - rect.left) / rect.width) * 100));
   }
+
+  function onMouseDown(e) { e.preventDefault(); setDragging(true); setPos(getPos(e.clientX)); }
+  function onMouseMove(e) { if (dragging) setPos(getPos(e.clientX)); }
+  function onMouseUp()   { setDragging(false); }
+  function onTouchStart(e) { setDragging(true); setPos(getPos(e.touches[0].clientX)); }
+  function onTouchMove(e)  { e.preventDefault(); if (dragging) setPos(getPos(e.touches[0].clientX)); }
+  function onTouchEnd()    { setDragging(false); }
+
+  useEffect(function() {
+    window.addEventListener("mouseup", onMouseUp);
+    return function() { window.removeEventListener("mouseup", onMouseUp); };
+  }, []);
+
   return (
-    <div ref={ref} style={{ position: "relative", borderRadius: 16, overflow: "hidden", cursor: "col-resize", userSelect: "none", aspectRatio: "1/1", background: "#000" }}
-      onMouseMove={e => e.buttons === 1 && move(e.clientX)}
-      onTouchMove={e => move(e.touches[0].clientX)}>
-      <img src={depois} style={{ position: "absolute", inset: 0, width: "100%", height: "100%", objectFit: "cover" }} alt="depois" />
+    <div ref={ref}
+      style={{ position: "relative", borderRadius: 16, overflow: "hidden", cursor: "col-resize", userSelect: "none", aspectRatio: "1/1", background: "#000", touchAction: "none" }}
+      onMouseDown={onMouseDown}
+      onMouseMove={onMouseMove}
+      onTouchStart={onTouchStart}
+      onTouchMove={onTouchMove}
+      onTouchEnd={onTouchEnd}>
+      <img src={depois} style={{ position: "absolute", inset: 0, width: "100%", height: "100%", objectFit: "cover" }} alt="depois" draggable="false" />
       <div style={{ position: "absolute", inset: 0, overflow: "hidden", width: pos + "%" }}>
-        <img src={antes} style={{ width: ref.current ? ref.current.offsetWidth + "px" : "100%", height: "100%", objectFit: "cover" }} alt="antes" />
+        <img src={antes} style={{ position: "absolute", top: 0, left: 0, width: ref.current ? ref.current.offsetWidth + "px" : "100%", height: "100%", objectFit: "cover" }} alt="antes" draggable="false" />
       </div>
       <div style={{ position: "absolute", top: 0, bottom: 0, left: pos + "%", width: 3, background: "#fff", transform: "translateX(-50%)", pointerEvents: "none" }}>
-        <div style={{ position: "absolute", top: "50%", left: "50%", transform: "translate(-50%,-50%)", width: 36, height: 36, borderRadius: "50%", background: "#fff", display: "flex", alignItems: "center", justifyContent: "center", boxShadow: "0 2px 12px rgba(0,0,0,.3)", fontSize: 14, color: COR.escuro, fontWeight: 800 }}>⇔</div>
+        <div style={{ position: "absolute", top: "50%", left: "50%", transform: "translate(-50%,-50%)", width: 40, height: 40, borderRadius: "50%", background: "#fff", display: "flex", alignItems: "center", justifyContent: "center", boxShadow: "0 2px 16px rgba(0,0,0,.4)", fontSize: 15, color: COR.escuro, fontWeight: 900 }}>⇔</div>
       </div>
-      <div style={{ position: "absolute", top: 12, left: 12, background: "rgba(0,0,0,.6)", color: "#fff", fontSize: 11, fontWeight: 700, padding: "4px 10px", borderRadius: 20 }}>ANTES</div>
-      <div style={{ position: "absolute", top: 12, right: 12, background: COR.laranja, color: "#fff", fontSize: 11, fontWeight: 700, padding: "4px 10px", borderRadius: 20 }}>DEPOIS</div>
-      <div style={{ position: "absolute", bottom: 12, left: "50%", transform: "translateX(-50%)", background: "rgba(0,0,0,.5)", color: "#fff", fontSize: 12, fontWeight: 600, padding: "4px 12px", borderRadius: 20, whiteSpace: "nowrap" }}>{label}</div>
+      <div style={{ position: "absolute", top: 12, left: 12, background: "rgba(0,0,0,.65)", color: "#fff", fontSize: 11, fontWeight: 700, padding: "4px 10px", borderRadius: 20, pointerEvents: "none" }}>ANTES</div>
+      <div style={{ position: "absolute", top: 12, right: 12, background: COR.laranja, color: "#fff", fontSize: 11, fontWeight: 700, padding: "4px 10px", borderRadius: 20, pointerEvents: "none" }}>DEPOIS</div>
+      <div style={{ position: "absolute", bottom: 12, left: "50%", transform: "translateX(-50%)", background: "rgba(0,0,0,.5)", color: "#fff", fontSize: 12, fontWeight: 600, padding: "4px 12px", borderRadius: 20, whiteSpace: "nowrap", pointerEvents: "none" }}>{label}</div>
     </div>
   );
 }
@@ -127,7 +145,7 @@ export default function App() {
 
   // ── HOME ─────────────────────────────────────────────────────
   if (screen === "home") return (
-    <div style={{ fontFamily: "'Inter', system-ui, sans-serif", color: COR.escuro, background: "#fff", width: "100%", overflowX: "hidden" }}>
+    <div style={{ fontFamily: "'Inter', system-ui, sans-serif", color: COR.escuro, background: "#fff", width: "100vw", maxWidth: "100%", overflowX: "hidden", margin: 0, padding: 0 }}>
 
       {/* NAV */}
       <nav style={{ position: "fixed", top: 0, left: 0, right: 0, zIndex: 100, background: "rgba(13,13,13,.92)", backdropFilter: "blur(12px)", borderBottom: "1px solid rgba(255,255,255,.08)", padding: "0 6%", height: 64, display: "flex", alignItems: "center", justifyContent: "space-between" }}>
