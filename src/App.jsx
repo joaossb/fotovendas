@@ -280,11 +280,16 @@ export default function App() {
         <div style={{ display: "flex", gap: 10, alignItems: "center" }}>
           {user ? (
             <>
-              <span style={{ fontSize: 13, color: "#aaa" }}>
-                {profile?.credits ?? 0} crédito{profile?.credits !== 1 ? "s" : ""}
-              </span>
-              <button style={{ background: "none", border: "1px solid #333", color: "#aaa", borderRadius: 50, padding: "8px 18px", fontSize: 13, cursor: "pointer" }} onClick={() => setScreen("app")}>Gerar foto</button>
-              <button style={{ background: "none", border: "none", color: "#666", fontSize: 13, cursor: "pointer" }} onClick={signOut}>Sair</button>
+              <div style={{ display: "flex", alignItems: "center", gap: 10, background: "#1a1a1a", border: "1px solid #2a2a2a", borderRadius: 50, padding: "6px 6px 6px 14px" }}>
+                <span style={{ fontSize: 12, color: "#888", maxWidth: 160, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{user.email}</span>
+                <div style={{ background: "#2a2a2a", borderRadius: 50, padding: "4px 12px", display: "flex", alignItems: "center", gap: 6 }}>
+                  <span style={{ fontSize: 13, color: COR.laranja, fontWeight: 800 }}>{profile?.credits ?? 0}</span>
+                  <span style={{ fontSize: 12, color: "#666" }}>crédito{profile?.credits !== 1 ? "s" : ""}</span>
+                </div>
+              </div>
+              <BtnPrimary onClick={() => setScreen("app")} style={{ padding: "9px 18px", fontSize: 13 }}>Gerar foto</BtnPrimary>
+              <button style={{ background: "none", border: "1px solid rgba(255,255,255,.15)", color: "#888", borderRadius: 50, padding: "8px 16px", fontSize: 13, cursor: "pointer" }} onClick={() => setScreen("plans")}>+ Créditos</button>
+              <button style={{ background: "none", border: "none", color: "#555", fontSize: 12, cursor: "pointer" }} onClick={signOut}>Sair</button>
             </>
           ) : (
             <>
@@ -310,7 +315,7 @@ export default function App() {
           </p>
           <div style={{ display: "flex", gap: 14, justifyContent: "center", flexWrap: "wrap" }}>
             <BtnPrimary onClick={() => user ? setScreen("app") : setShowAuth(true)} style={{ fontSize: 16, padding: "15px 36px" }}>✨ Testar agora — é grátis</BtnPrimary>
-            <button onClick={() => {}} style={{ display: "inline-flex", alignItems: "center", gap: 8, background: "transparent", color: "#fff", border: "2px solid rgba(255,255,255,.35)", borderRadius: 50, padding: "15px 36px", fontSize: 15, fontWeight: 600, cursor: "pointer" }}>Ver exemplos ↓</button>
+            <button onClick={() => document.getElementById("secao-exemplos").scrollIntoView({ behavior: "smooth" })} style={{ display: "inline-flex", alignItems: "center", gap: 8, background: "transparent", color: "#fff", border: "2px solid rgba(255,255,255,.35)", borderRadius: 50, padding: "15px 36px", fontSize: 15, fontWeight: 600, cursor: "pointer" }}>Ver exemplos ↓</button>
           </div>
           <div style={{ display: "flex", justifyContent: "center", gap: 40, marginTop: 56, flexWrap: "wrap" }}>
             {[["1.000+","fotos geradas"],["~30s","por geração"],["100%","fiel ao prato"]].map(function(item, i) {
@@ -326,7 +331,7 @@ export default function App() {
       </section>
 
       {/* ANTES E DEPOIS */}
-      <section style={{ background: COR.escuro, padding: "80px 6%", width: "100%", boxSizing: "border-box" }}>
+      <section id="secao-exemplos" style={{ background: COR.escuro, padding: "80px 6%", width: "100%", boxSizing: "border-box" }}>
         <div style={{ maxWidth: 1100, margin: "0 auto" }}>
           <div style={{ textAlign: "center", marginBottom: 52 }}>
             <div style={{ display: "inline-block", background: "rgba(255,90,31,.15)", border: "1px solid rgba(255,90,31,.3)", color: "#FF8C42", fontSize: 12, fontWeight: 700, padding: "5px 14px", borderRadius: 20, marginBottom: 14, textTransform: "uppercase", letterSpacing: 1 }}>Resultados reais</div>
@@ -488,14 +493,17 @@ export default function App() {
     <div style={{ fontFamily: "'Inter', system-ui, sans-serif", background: COR.escuro, minHeight: "100vh", width: "100%", color: "#fff" }}>
       <nav style={{ padding: "0 6%", height: 64, display: "flex", alignItems: "center", justifyContent: "space-between", borderBottom: "1px solid #1a1a1a" }}>
         <Logo onClick={() => setScreen("home")} dark />
-        <div style={{ display: "flex", alignItems: "center", gap: 16 }}>
+        <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
           {user && profile && (
-            <div style={{ display: "flex", alignItems: "center", gap: 8, background: "#1a1a1a", border: "1px solid #2a2a2a", borderRadius: 20, padding: "6px 14px" }}>
-              <span style={{ fontSize: 13, color: COR.laranja, fontWeight: 700 }}>{profile.credits}</span>
-              <span style={{ fontSize: 13, color: "#666" }}>crédito{profile.credits !== 1 ? "s" : ""}</span>
+            <div style={{ display: "flex", alignItems: "center", gap: 8, background: "#1a1a1a", border: "1px solid #2a2a2a", borderRadius: 50, padding: "6px 6px 6px 14px" }}>
+              <span style={{ fontSize: 12, color: "#888", maxWidth: 140, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{user.email}</span>
+              <div style={{ background: "#2a2a2a", borderRadius: 50, padding: "4px 12px", display: "flex", alignItems: "center", gap: 6 }}>
+                <span style={{ fontSize: 13, color: COR.laranja, fontWeight: 800 }}>{profile.credits}</span>
+                <span style={{ fontSize: 12, color: "#666" }}>crédito{profile.credits !== 1 ? "s" : ""}</span>
+              </div>
             </div>
           )}
-          <button style={{ background: "none", border: "1px solid #333", color: "#aaa", borderRadius: 50, padding: "8px 20px", fontSize: 13, cursor: "pointer" }} onClick={() => setScreen("plans")}>Ver planos</button>
+          <button style={{ background: "linear-gradient(135deg,#FF5A1F,#FF8C42)", border: "none", color: "#fff", borderRadius: 50, padding: "8px 18px", fontSize: 13, fontWeight: 700, cursor: "pointer" }} onClick={() => setScreen("plans")}>+ Comprar créditos</button>
         </div>
       </nav>
 
@@ -503,7 +511,7 @@ export default function App() {
         <div style={{ marginBottom: 36 }}>
           <div style={{ display: "inline-block", background: "rgba(255,90,31,.15)", border: "1px solid rgba(255,90,31,.3)", color: "#FF8C42", fontSize: 12, fontWeight: 700, padding: "5px 14px", borderRadius: 20, marginBottom: 14 }}>🍽️ IA Gastronômica</div>
           <h2 style={{ fontSize: 30, fontWeight: 800, color: "#fff", marginBottom: 6, letterSpacing: -.5 }}>Transforme seu prato</h2>
-          <p style={{ fontSize: 14, color: "#888" }}>Envie a foto e receba uma imagem profissional em segundos.</p>
+          <p style={{ fontSize: 14, color: "#888" }}>Envie a foto e receba uma imagem profissional em segundos. <span style={{ color: COR.laranja, fontWeight: 600 }}>Cada geração consome 1 crédito.</span></p>
         </div>
 
         <div style={{ display: "grid", gridTemplateColumns: resultSrc ? "1fr 1fr" : "1fr", gap: 24 }}>
