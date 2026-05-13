@@ -1,8 +1,8 @@
 import { useState, useRef, useEffect } from "react";
-import antes1 from "./assets/antes1.jpg";
-import depois1 from "./assets/depois1.jpg";
-import antes2 from "./assets/antes2.jpg";
-import depois2 from "./assets/depois2.jpg";
+import antes1 from "./assets/antes 1.jpg";
+import depois1 from "./assets/depois 1.jpg";
+import antes2 from "./assets/antes 2.jpg";
+import depois2 from "./assets/depois 2.jpg";
 const PLANS = [
   { id: "starter", name: "Kit Início",    credits: 10,  price: "R$ 19,90", perUnit: "R$ 1,99/foto", badge: null,           features: ["10 gerações de imagem", "IA especializada cardápio", "Créditos que não expiram", "Download instantâneo"] },
   { id: "pro",     name: "Kit Negócio",   credits: 30,  price: "R$ 44,90", perUnit: "R$ 1,49/foto", badge: "Mais vendido",  features: ["30 gerações de imagem", "IA de alta fidelidade", "Formatos iFood e Stories", "Créditos que não expiram"] },
