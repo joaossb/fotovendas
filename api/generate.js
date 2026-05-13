@@ -52,7 +52,7 @@ export default async function handler(req, res) {
   res.setHeader("Access-Control-Allow-Origin", "*");
   res.setHeader("Access-Control-Allow-Headers", "Content-Type");
 
-  const { imageBase64, mimeType, category, plan } = req.body;
+  const { imageBase64, mimeType, category, plan, descricao } = req.body;
 
   if (!imageBase64 || !category) {
     return res.status(400).json({ error: "Imagem e categoria sao obrigatorios." });
@@ -90,7 +90,7 @@ export default async function handler(req, res) {
               },
               {
                 type: "text",
-                text: systemPrompt,
+                text: systemPrompt + (descricao ? "\n\nNote from the owner about this dish: " + descricao + ". Use this only to confirm your visual analysis — the image is the main reference." : ""),
               },
             ],
           },

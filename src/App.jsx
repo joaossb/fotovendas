@@ -115,6 +115,7 @@ export default function App() {
   const [loadMsg,     setLoadMsg]     = useState("");
   const [resultSrc,   setResultSrc]   = useState(null);
   const [error,       setError]       = useState(null);
+  const [descricao,   setDescricao]   = useState("");
   const fileRef = useRef();
 
   function handleFile(e) {
@@ -126,12 +127,12 @@ export default function App() {
     reader.readAsDataURL(f);
   }
 
-  function generate() {
+function generate() {
     if (!previewB64) { setError("Envie uma imagem antes de gerar."); return; }
     setLoading(true); setError(null); setResultSrc(null); setLoadMsg("Analisando o prato...");
     fetch("/api/generate", {
       method: "POST", headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ imageBase64: previewB64, mimeType: previewMime, category: "cardapio", plan: "basic" }),
+      body: JSON.stringify({ imageBase64: previewB64, mimeType: previewMime, category: "cardapio", plan: "basic", descricao: descricao.trim() }),
     })
     .then(function(r) { return r.json(); })
     .then(function(data) {
@@ -389,8 +390,15 @@ export default function App() {
               )}
             </div>
             {previewSrc && (
-              <div style={{ marginTop: 14 }}>
-                <BtnPrimary onClick={generate} style={{ width: "100%", padding: "15px", fontSize: 16, opacity: loading ? .75 : 1, pointerEvents: loading ? "none" : "auto" }}>
+                <div style={{ marginTop: 14 }}>
+                  <input
+                    type="text"
+                    placeholder='Opcional: descreva o prato (ex: "esfiha de carne e queijo")'
+                    value={descricao}
+                    onChange={function(e) { setDescricao(e.target.value); }}
+                    style={{ width: "100%", background: "#111", border: "1px solid #333", borderRadius: 12, padding: "12px 16px", fontSize: 14, color: "#fff", marginBottom: 12, outline: "none" }}
+                  />
+                  <BtnPrimary onClick={generate} style={{ width: "100%", padding: "15px", fontSize: 16, opacity: loading ? .75 : 1, pointerEvents: loading ? "none" : "auto" }}>
                   {loading ? loadMsg + "..." : "✨ Gerar foto profissional"}
                 </BtnPrimary>
                 {loading && <p style={{ fontSize: 12, color: "#666", textAlign: "center", marginTop: 8 }}>⏳ Aguarde até 30 segundos...</p>}
