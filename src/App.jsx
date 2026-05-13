@@ -99,17 +99,28 @@ function FAQItem({ q, r }) {
 }
 
 // ── TELA DE LOGIN / CADASTRO ──────────────────────────────────
-function AuthScreen({ onSuccess }) {
+function AuthScreen({ onSuccess, onBack }) {
   const [mode,     setMode]     = useState("login");
   const [email,    setEmail]    = useState("");
   const [password, setPassword] = useState("");
   const [loading,  setLoading]  = useState(false);
   const [error,    setError]    = useState(null);
   const [msg,      setMsg]      = useState(null);
+  const [forgotPw, setForgotPw] = useState(false);
 
   async function handleSubmit() {
-    if (!email || !password) { setError("Preencha e-mail e senha."); return; }
+    if (!email || (!forgotPw && !password)) { setError("Preencha todos os campos."); return; }
     setLoading(true); setError(null); setMsg(null);
+
+    if (forgotPw) {
+      const { error } = await supabase.auth.resetPasswordForEmail(email, {
+        redirectTo: window.location.origin,
+      });
+      if (error) { setError("Erro ao enviar e-mail. Tente novamente."); }
+      else { setMsg("E-mail de recuperação enviado! Verifique sua caixa de entrada."); }
+      setLoading(false); return;
+    }
+
     if (mode === "login") {
       const { error } = await supabase.auth.signInWithPassword({ email, password });
       if (error) { setError("E-mail ou senha incorretos."); setLoading(false); return; }
@@ -125,16 +136,22 @@ function AuthScreen({ onSuccess }) {
   return (
     <div style={{ minHeight: "100vh", background: COR.escuro, display: "flex", alignItems: "center", justifyContent: "center", padding: "20px", fontFamily: "system-ui,sans-serif" }}>
       <div style={{ width: "100%", maxWidth: 420 }}>
-        <div style={{ textAlign: "center", marginBottom: 36 }}>
-          <div style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: 8, marginBottom: 24 }}>
+
+        {/* Botão voltar */}
+        <button onClick={onBack} style={{ background: "none", border: "none", color: "#666", fontSize: 13, cursor: "pointer", display: "flex", alignItems: "center", gap: 6, marginBottom: 24 }}>
+          ← Voltar ao site
+        </button>
+
+        <div style={{ textAlign: "center", marginBottom: 32 }}>
+          <div style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: 8, marginBottom: 20 }}>
             <div style={{ width: 36, height: 36, borderRadius: 10, background: "linear-gradient(135deg,#FF5A1F,#FFBA08)", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 18 }}>🍽️</div>
             <span style={{ fontWeight: 800, fontSize: 20, color: "#fff" }}>foto<span style={{ color: COR.laranja }}>cardápio</span></span>
           </div>
-          <h2 style={{ fontSize: 24, fontWeight: 800, color: "#fff", marginBottom: 6 }}>
-            {mode === "login" ? "Entrar na sua conta" : "Criar conta grátis"}
+          <h2 style={{ fontSize: 22, fontWeight: 800, color: "#fff", marginBottom: 6 }}>
+            {forgotPw ? "Recuperar senha" : mode === "login" ? "Entrar na sua conta" : "Criar conta grátis"}
           </h2>
           <p style={{ fontSize: 14, color: "#888" }}>
-            {mode === "login" ? "Bem-vindo de volta!" : "1 foto gratuita para começar"}
+            {forgotPw ? "Enviaremos um link para redefinir sua senha" : mode === "login" ? "Bem-vindo de volta!" : "Ganhe 1 foto grátis ao se cadastrar"}
           </p>
         </div>
 
@@ -145,30 +162,52 @@ function AuthScreen({ onSuccess }) {
               placeholder="seu@email.com"
               style={{ width: "100%", background: "#111", border: "1px solid #333", borderRadius: 10, padding: "12px 16px", fontSize: 14, color: "#fff", outline: "none", boxSizing: "border-box" }} />
           </div>
-          <div style={{ marginBottom: 24 }}>
-            <label style={{ fontSize: 13, fontWeight: 600, color: "#aaa", display: "block", marginBottom: 6 }}>Senha</label>
-            <input type="password" value={password} onChange={e => setPassword(e.target.value)}
-              placeholder="mínimo 6 caracteres"
-              onKeyDown={e => e.key === "Enter" && handleSubmit()}
-              style={{ width: "100%", background: "#111", border: "1px solid #333", borderRadius: 10, padding: "12px 16px", fontSize: 14, color: "#fff", outline: "none", boxSizing: "border-box" }} />
-          </div>
+
+          {!forgotPw && (
+            <div style={{ marginBottom: 8 }}>
+              <label style={{ fontSize: 13, fontWeight: 600, color: "#aaa", display: "block", marginBottom: 6 }}>Senha</label>
+              <input type="password" value={password} onChange={e => setPassword(e.target.value)}
+                placeholder="mínimo 6 caracteres"
+                onKeyDown={e => e.key === "Enter" && handleSubmit()}
+                style={{ width: "100%", background: "#111", border: "1px solid #333", borderRadius: 10, padding: "12px 16px", fontSize: 14, color: "#fff", outline: "none", boxSizing: "border-box" }} />
+            </div>
+          )}
+
+          {mode === "login" && !forgotPw && (
+            <div style={{ textAlign: "right", marginBottom: 20 }}>
+              <span style={{ fontSize: 12, color: COR.laranja, cursor: "pointer" }} onClick={() => { setForgotPw(true); setError(null); setMsg(null); }}>
+                Esqueci minha senha
+              </span>
+            </div>
+          )}
+
+          {forgotPw && <div style={{ marginBottom: 20 }} />}
 
           {error && <div style={{ background: "#2a0a0a", border: "1px solid #5a1a1a", borderRadius: 10, padding: "10px 14px", fontSize: 13, color: "#ff8888", marginBottom: 16 }}>❌ {error}</div>}
           {msg   && <div style={{ background: "#0a2a0a", border: "1px solid #1a5a1a", borderRadius: 10, padding: "10px 14px", fontSize: 13, color: "#88ff88", marginBottom: 16 }}>✅ {msg}</div>}
 
           <BtnPrimary onClick={handleSubmit} disabled={loading} style={{ width: "100%", padding: "14px", fontSize: 15 }}>
-            {loading ? "Aguarde..." : mode === "login" ? "Entrar" : "Criar conta grátis"}
+            {loading ? "Aguarde..." : forgotPw ? "Enviar link de recuperação" : mode === "login" ? "Entrar" : "Criar conta grátis"}
           </BtnPrimary>
 
-          <div style={{ textAlign: "center", marginTop: 20 }}>
-            <span style={{ fontSize: 13, color: "#666" }}>
-              {mode === "login" ? "Não tem conta? " : "Já tem conta? "}
-            </span>
-            <span style={{ fontSize: 13, color: COR.laranja, cursor: "pointer", fontWeight: 600 }}
-              onClick={() => { setMode(mode === "login" ? "register" : "login"); setError(null); setMsg(null); }}>
-              {mode === "login" ? "Cadastre-se grátis" : "Entrar"}
-            </span>
-          </div>
+          {forgotPw ? (
+            <div style={{ textAlign: "center", marginTop: 20 }}>
+              <span style={{ fontSize: 13, color: COR.laranja, cursor: "pointer", fontWeight: 600 }}
+                onClick={() => { setForgotPw(false); setError(null); setMsg(null); }}>
+                ← Voltar ao login
+              </span>
+            </div>
+          ) : (
+            <div style={{ textAlign: "center", marginTop: 20 }}>
+              <span style={{ fontSize: 13, color: "#666" }}>
+                {mode === "login" ? "Não tem conta? " : "Já tem conta? "}
+              </span>
+              <span style={{ fontSize: 13, color: COR.laranja, cursor: "pointer", fontWeight: 600 }}
+                onClick={() => { setMode(mode === "login" ? "register" : "login"); setError(null); setMsg(null); }}>
+                {mode === "login" ? "Cadastre-se grátis" : "Entrar"}
+              </span>
+            </div>
+          )}
         </div>
       </div>
     </div>
@@ -189,10 +228,10 @@ export default function App() {
   const [loadMsg,     setLoadMsg]     = useState("");
   const [resultSrc,   setResultSrc]   = useState(null);
   const [error,       setError]       = useState(null);
+  const [welcome,     setWelcome]     = useState(false);
   const [showAuth,    setShowAuth]    = useState(false);
-  const fileRef = useRef();
 
-  // Verificar sessão ao carregar
+  const fileRef = useRef();
   useEffect(function() {
     supabase.auth.getSession().then(function({ data: { session } }) {
       if (session) {
@@ -270,7 +309,7 @@ export default function App() {
     </div>
   );
 
-  if (showAuth) return <AuthScreen onSuccess={function() { setShowAuth(false); setScreen("app"); }} />;
+  if (showAuth) return <AuthScreen onSuccess={function() { setShowAuth(false); setWelcome(true); setScreen("app"); }} onBack={function() { setShowAuth(false); }} />;
 
   // ── HOME ───────────────────────────────────────────────────
   if (screen === "home") return (
@@ -513,6 +552,20 @@ export default function App() {
           <h2 style={{ fontSize: 30, fontWeight: 800, color: "#fff", marginBottom: 6, letterSpacing: -.5 }}>Transforme seu prato</h2>
           <p style={{ fontSize: 14, color: "#888" }}>Envie a foto e receba uma imagem profissional em segundos. <span style={{ color: COR.laranja, fontWeight: 600 }}>Cada geração consome 1 crédito.</span></p>
         </div>
+
+        {welcome && (
+          <div style={{ background: "linear-gradient(135deg,#0a2a0a,#0d350d)", border: "1px solid #1a5a1a", borderRadius: 14, padding: "14px 18px", marginBottom: 24, display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+            <span style={{ fontSize: 14, color: "#88ff88" }}>🎉 Bem-vindo! Você ganhou <strong>1 crédito grátis</strong> para começar.</span>
+            <span style={{ color: "#1a5a1a", cursor: "pointer", fontSize: 18 }} onClick={() => setWelcome(false)}>×</span>
+          </div>
+        )}
+
+        {profile && profile.credits === 0 && (
+          <div style={{ background: "linear-gradient(135deg,#2a1a00,#3d2800)", border: "1px solid #5a3a00", borderRadius: 14, padding: "14px 18px", marginBottom: 24, display: "flex", justifyContent: "space-between", alignItems: "center", flexWrap: "wrap", gap: 10 }}>
+            <span style={{ fontSize: 14, color: "#ffcc66" }}>⚠️ Seus créditos acabaram. Adquira mais para continuar gerando fotos.</span>
+            <button onClick={() => setScreen("plans")} style={{ background: "linear-gradient(135deg,#FF5A1F,#FF8C42)", border: "none", color: "#fff", borderRadius: 50, padding: "8px 18px", fontSize: 13, fontWeight: 700, cursor: "pointer" }}>Comprar créditos →</button>
+          </div>
+        )}
 
         <div style={{ display: "grid", gridTemplateColumns: resultSrc ? "1fr 1fr" : "1fr", gap: 24 }}>
           <div>
