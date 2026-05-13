@@ -1,14 +1,18 @@
 import { useState, useRef, useEffect } from "react";
-
+import antes1 from "./assets/antes1.jpg";
+import depois1 from "./assets/depois1.jpg";
+import antes2 from "./assets/antes2.jpg";
+import depois2 from "./assets/depois2.jpg";
 const PLANS = [
   { id: "starter", name: "Kit Início",    credits: 10,  price: "R$ 19,90", perUnit: "R$ 1,99/foto", badge: null,           features: ["10 gerações de imagem", "IA especializada cardápio", "Créditos que não expiram", "Download instantâneo"] },
   { id: "pro",     name: "Kit Negócio",   credits: 30,  price: "R$ 44,90", perUnit: "R$ 1,49/foto", badge: "Mais vendido",  features: ["30 gerações de imagem", "IA de alta fidelidade", "Formatos iFood e Stories", "Créditos que não expiram"] },
   { id: "agency",  name: "Kit Agência",   credits: 100, price: "R$ 99,90", perUnit: "R$ 0,99/foto", badge: "Melhor custo",  features: ["100 gerações de imagem", "IA máxima qualidade", "Uso em anúncios pagos", "Suporte prioritário"] },
 ];
 
+
 const ANTES_DEPOIS = [
-  { antes: "https://res.cloudinary.com/do8gdtozt/image/upload/f_auto,q_auto,w_800/v1769464843/Hot_Poke_Frango_Crispy_Coca-Cola_-_Gokei_Pokes_Bowls_-_S%C3%A3o_Lu%C3%ADsLata_f0cddx.avif", depois: "https://res.cloudinary.com/do8gdtozt/image/upload/f_auto,q_auto,w_800/v1769464850/Poke_Hana_-_Frango_Crispy_edited_ouy5a7.png", label: "Poke Bowl" },
-  { antes: "https://estudiosabor.com.br/images/generated/gallery_burger_1_1770593607387.png", depois: "https://estudiosabor.com.br/images/generated/gourmet_burger_1770593673029.png", label: "Hambúrguer" },
+  { antes: antes1, depois: depois1, label: "Esfiha / Wrap" },
+  { antes: antes2, depois: depois2, label: "Pizza" },
 ];
 
 const DEPOIMENTOS = [
