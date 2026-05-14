@@ -11,12 +11,12 @@ const ANTES_DEPOIS = [
 ];
 
 const PLANS = [
-  { id: "starter", name: "Kit Início",  credits: 10,  price: "R$ 29,90", perUnit: "R$ 2,99/foto", badge: null,
-    features: ["10 fotos profissionais", "IA treinada para gastronomia", "Pronto para iFood e redes sociais", "Créditos sem prazo de validade"] },
-  { id: "pro",     name: "Kit Negócio", credits: 30,  price: "R$ 74,90", perUnit: "R$ 2,49/foto", badge: "Mais vendido",
-    features: ["30 fotos profissionais", "Melhor custo por foto", "IA treinada para gastronomia", "Créditos sem prazo de validade"] },
+  { id: "starter", name: "Kit Início",   credits: 10, price: "R$ 29,90",  perUnit: "R$ 2,99/foto", badge: null,
+    features: ["10 fotos profissionais", "Pronto para iFood e redes sociais", "Créditos sem prazo de validade"] },
+  { id: "pro",     name: "Kit Negócio",  credits: 30, price: "R$ 74,90",  perUnit: "R$ 2,49/foto", badge: "Mais vendido",
+    features: ["30 fotos profissionais", "IA treinada para gastronomia", "Pronto para iFood e redes sociais", "Créditos sem prazo de validade"] },
   { id: "agency",  name: "Kit Completo", credits: 50, price: "R$ 109,90", perUnit: "R$ 2,19/foto", badge: "Melhor custo",
-    features: ["50 fotos profissionais", "Maior economia por foto", "IA treinada para gastronomia", "Créditos sem prazo de validade"] },
+    features: ["50 fotos profissionais", "IA treinada para gastronomia", "Maior economia por foto", "Pronto para iFood e redes sociais", "Créditos sem prazo de validade"] },
 ];
 
 const DEPOIMENTOS = [
