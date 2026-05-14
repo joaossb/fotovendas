@@ -134,7 +134,7 @@ function AuthScreen({ onSuccess, onBack }) {
     if (!email || (!forgotPw && !password)) { setError("Preencha todos os campos."); return; }
     setLoading(true); setError(null); setMsg(null);
     if (forgotPw) {
-      const { error } = await supabase.auth.resetPasswordForEmail(email, { redirectTo: "https://fotovendas.vercel.app" });
+      const { error } = await supabase.auth.resetPasswordForEmail(email, { redirectTo: "https://fotocardapio.com.br" });
       if (error) setError("Erro ao enviar e-mail. Tente novamente.");
       else setMsg("E-mail de recuperação enviado! Verifique sua caixa de entrada.");
       setLoading(false); return;
