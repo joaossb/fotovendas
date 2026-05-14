@@ -29,7 +29,7 @@ const FAQ = [
   { q: "Como funciona?", r: "Você envia a foto do seu prato tirada pelo celular. Nossa IA recria a iluminação e o cenário, entregando uma foto profissional pronta para iFood e redes sociais em segundos." },
   { q: "Os créditos expiram?", r: "Não! Seus créditos são vitalícios. Compre hoje e use quando quiser — sem pressão." },
   { q: "O resultado é fiel ao meu prato?", r: "Sim. Nossa IA é treinada para gastronomia e preserva os ingredientes, porções e apresentação do prato original." },
-  { q: "Posso refazer uma foto que não gostei?", r: "Sim! Cada foto gerada dá direito a 1 regeneração gratuita. Se não gostar do resultado, você pode refazer uma vez — adicione uma descrição do prato para melhorar o resultado. A regeneração consome 1 crédito." },
+  { q: "Não gostei da foto gerada, o que eu faço?", r: "Normalmente o resultado é muito fiel ao prato original, mas eventualmente pode não ser exatamente o que você tinha em mente. Nesse caso, descreva ou melhore a descrição do seu produto no campo de texto e tente novamente — a IA usa essa informação para gerar um resultado mais preciso. Lembre-se que cada geração consome 1 crédito." },
   { q: "Precisa instalar algum app?", r: "Não. Funciona direto no navegador, no celular ou no computador." },
 ];
 
