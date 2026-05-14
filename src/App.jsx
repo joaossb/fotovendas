@@ -213,7 +213,7 @@ function AuthScreen({ onSuccess, onBack }) {
 }
 
 // ── TELA DE REDEFINIÇÃO DE SENHA ─────────────────────────────
-function ResetPasswordScreen({ onDone }) {
+function ResetPasswordScreen() {
   const [password,  setPassword]  = useState("");
   const [password2, setPassword2] = useState("");
   const [loading,   setLoading]   = useState(false);
@@ -229,7 +229,7 @@ function ResetPasswordScreen({ onDone }) {
     if (error) { setError("Erro ao redefinir senha. Tente novamente."); setLoading(false); return; }
     setSuccess(true);
     setLoading(false);
-    setTimeout(function() { onDone && onDone(); }, 2500);
+    setTimeout(function() { window.location.href = "/"; }, 3000);
   }
 
   return (
@@ -390,21 +390,9 @@ export default function App() {
     </div>
   );
 
-  const [isReset, setIsReset] = useState(false);
-
-  // Detectar fluxo de redefinição de senha
-  useEffect(function() {
-    const hash = window.location.hash;
-    if (hash.includes("type=recovery")) {
-      setIsReset(true);
-      // Deixa o Supabase processar o token do hash
-      supabase.auth.getSession().then(function({ data: { session } }) {
-        if (session) { setUser(session.user); }
-      });
-    }
-  }, []);
-
-  if (isReset) return <ResetPasswordScreen onDone={function() { setIsReset(false); setScreen("home"); }} />;
+  // Detectar fluxo de redefinição de senha via hash da URL
+  const isResetFlow = typeof window !== "undefined" && window.location.hash.includes("type=recovery");
+  if (isResetFlow) return <ResetPasswordScreen />;
 
   if (showAuth) return <AuthScreen onSuccess={function() { setShowAuth(false); setWelcome(true); setScreen("app"); }} onBack={function() { setShowAuth(false); }} />;
 
