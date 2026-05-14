@@ -11,9 +11,12 @@ const ANTES_DEPOIS = [
 ];
 
 const PLANS = [
-  { id: "starter", name: "Kit Início",  credits: 10,  price: "R$ 29,90", perUnit: "R$ 2,99/foto", badge: null,          features: ["10 gerações de imagem", "IA especializada cardápio", "Créditos que não expiram", "Download instantâneo"] },
-  { id: "pro",     name: "Kit Negócio", credits: 30,  price: "R$ 74,90", perUnit: "R$ 2,49/foto", badge: "Mais vendido", features: ["30 gerações de imagem", "IA de alta fidelidade", "Créditos que não expiram", "Download instantâneo"] },
-  { id: "agency",  name: "Kit Agência", credits: 50, price: "R$ 109,90", perUnit: "R$ 2,19/foto", badge: "Melhor custo", features: ["50 gerações de imagem", "IA máxima qualidade", "Créditos que não expiram", "Download instantâneo"] },
+  { id: "starter", name: "Kit Início",  credits: 10,  price: "R$ 29,90", perUnit: "R$ 2,99/foto", badge: null,
+    features: ["10 fotos profissionais", "IA treinada para gastronomia", "Pronto para iFood e redes sociais", "Créditos sem prazo de validade"] },
+  { id: "pro",     name: "Kit Negócio", credits: 30,  price: "R$ 74,90", perUnit: "R$ 2,49/foto", badge: "Mais vendido",
+    features: ["30 fotos profissionais", "Melhor custo por foto", "IA treinada para gastronomia", "Créditos sem prazo de validade"] },
+  { id: "agency",  name: "Kit Completo", credits: 50, price: "R$ 109,90", perUnit: "R$ 2,19/foto", badge: "Melhor custo",
+    features: ["50 fotos profissionais", "Maior economia por foto", "IA treinada para gastronomia", "Créditos sem prazo de validade"] },
 ];
 
 const DEPOIMENTOS = [
@@ -209,6 +212,71 @@ function AuthScreen({ onSuccess, onBack }) {
   );
 }
 
+// ── TELA DE REDEFINIÇÃO DE SENHA ─────────────────────────────
+function ResetPasswordScreen() {
+  const [password,  setPassword]  = useState("");
+  const [password2, setPassword2] = useState("");
+  const [loading,   setLoading]   = useState(false);
+  const [error,     setError]     = useState(null);
+  const [success,   setSuccess]   = useState(false);
+
+  async function handleReset() {
+    if (!password || !password2) { setError("Preencha os dois campos."); return; }
+    if (password.length < 6)     { setError("A senha deve ter no mínimo 6 caracteres."); return; }
+    if (password !== password2)  { setError("As senhas não coincidem."); return; }
+    setLoading(true); setError(null);
+    const { error } = await supabase.auth.updateUser({ password });
+    if (error) { setError("Erro ao redefinir senha. Tente novamente."); setLoading(false); return; }
+    setSuccess(true);
+    setLoading(false);
+    setTimeout(function() { window.location.href = "/"; }, 3000);
+  }
+
+  return (
+    <div style={{ minHeight: "100vh", background: COR.escuro, display: "flex", alignItems: "center", justifyContent: "center", padding: "20px", fontFamily: "system-ui,sans-serif" }}>
+      <div style={{ width: "100%", maxWidth: 420 }}>
+        <div style={{ textAlign: "center", marginBottom: 32 }}>
+          <div style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: 8, marginBottom: 20 }}>
+            <div style={{ width: 36, height: 36, borderRadius: 10, background: "linear-gradient(135deg,#FF5A1F,#FFBA08)", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 18 }}>🍽️</div>
+            <span style={{ fontWeight: 800, fontSize: 20, color: "#fff" }}>foto<span style={{ color: COR.laranja }}>cardápio</span></span>
+          </div>
+          <h2 style={{ fontSize: 22, fontWeight: 800, color: "#fff", marginBottom: 6 }}>Redefinir senha</h2>
+          <p style={{ fontSize: 14, color: "#888" }}>Digite sua nova senha abaixo</p>
+        </div>
+        <div style={{ background: COR.card, borderRadius: 20, padding: "32px 28px", border: "1px solid #2a2a2a" }}>
+          {success ? (
+            <div style={{ textAlign: "center" }}>
+              <div style={{ fontSize: 48, marginBottom: 16 }}>✅</div>
+              <p style={{ color: "#88ff88", fontSize: 15, fontWeight: 600, marginBottom: 8 }}>Senha redefinida com sucesso!</p>
+              <p style={{ color: "#666", fontSize: 13 }}>Redirecionando para o site...</p>
+            </div>
+          ) : (
+            <>
+              <div style={{ marginBottom: 16 }}>
+                <label style={{ fontSize: 13, fontWeight: 600, color: "#aaa", display: "block", marginBottom: 6 }}>Nova senha</label>
+                <input type="password" value={password} onChange={e => setPassword(e.target.value)}
+                  placeholder="mínimo 6 caracteres"
+                  style={{ width: "100%", background: "#111", border: "1px solid #333", borderRadius: 10, padding: "12px 16px", fontSize: 14, color: "#fff", outline: "none", boxSizing: "border-box" }} />
+              </div>
+              <div style={{ marginBottom: 24 }}>
+                <label style={{ fontSize: 13, fontWeight: 600, color: "#aaa", display: "block", marginBottom: 6 }}>Confirmar nova senha</label>
+                <input type="password" value={password2} onChange={e => setPassword2(e.target.value)}
+                  placeholder="repita a senha"
+                  onKeyDown={e => e.key === "Enter" && handleReset()}
+                  style={{ width: "100%", background: "#111", border: "1px solid #333", borderRadius: 10, padding: "12px 16px", fontSize: 14, color: "#fff", outline: "none", boxSizing: "border-box" }} />
+              </div>
+              {error && <div style={{ background: "#2a0a0a", border: "1px solid #5a1a1a", borderRadius: 10, padding: "10px 14px", fontSize: 13, color: "#ff8888", marginBottom: 16 }}>❌ {error}</div>}
+              <BtnPrimary onClick={handleReset} disabled={loading} style={{ width: "100%", padding: "14px", fontSize: 15 }}>
+                {loading ? "Salvando..." : "Salvar nova senha"}
+              </BtnPrimary>
+            </>
+          )}
+        </div>
+      </div>
+    </div>
+  );
+}
+
 export default function App() {
   const [screen,      setScreen]      = useState("home");
   const [user,        setUser]        = useState(null);
@@ -322,6 +390,10 @@ export default function App() {
     </div>
   );
 
+  // Detectar fluxo de redefinição de senha via hash da URL
+  const isResetFlow = typeof window !== "undefined" && window.location.hash.includes("type=recovery");
+  if (isResetFlow) return <ResetPasswordScreen />;
+
   if (showAuth) return <AuthScreen onSuccess={function() { setShowAuth(false); setWelcome(true); setScreen("app"); }} onBack={function() { setShowAuth(false); }} />;
 
   // ── HOME ─────────────────────────────────────────────────────
@@ -394,7 +466,7 @@ export default function App() {
             <h2 style={{ fontSize: 34, fontWeight: 800, color: COR.escuro, letterSpacing: -.5 }}>Simples assim</h2>
           </div>
           <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit,minmax(210px,1fr))", gap: 24 }}>
-            {[["📱","Tire uma foto","Com o celular mesmo. Sem iluminação especial."],["⬆️","Faça o upload","Envie a imagem no site em segundos."],["🤖","IA transforma","Resultado profissional em até 30s."],["🔄","Não gostou?","Regenere 1 vez — melhore a descrição e tente novamente."]].map(function(item, i) {
+            {[["📱","Tire uma foto","Com o celular mesmo. Sem iluminação especial."],["⬆️","Faça o upload","Envie a imagem no site em segundos."],["🤖","IA transforma","Resultado profissional em até 30s."],["💡","Refine se quiser","Descreva o prato e regenere para um resultado ainda melhor."]].map(function(item, i) {
               return (
                 <div key={i} style={{ background: COR.fundo, borderRadius: 20, padding: "32px 24px", textAlign: "center" }}>
                   <div style={{ width: 52, height: 52, borderRadius: 14, background: "linear-gradient(135deg,rgba(255,90,31,.12),rgba(255,186,8,.15))", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 24, margin: "0 auto 16px" }}>{item[0]}</div>
