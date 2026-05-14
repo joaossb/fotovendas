@@ -295,14 +295,18 @@ export default function App() {
 
   function startCheckout(planId) {
     if (!user) { setShowAuth(true); return; }
+    alert("Iniciando checkout para plano: " + planId);
     fetch("/api/checkout", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ plan: planId, userEmail: user.email, userId: user.id }),
     })
     .then(function(r) { return r.json(); })
-    .then(function(d) { if (d.url) window.location.href = d.url; })
-    .catch(function() { alert("Erro ao iniciar pagamento. Tente novamente."); });
+    .then(function(d) {
+      if (d.url) { window.location.href = d.url; }
+      else { alert("Erro: " + JSON.stringify(d)); }
+    })
+    .catch(function(err) { alert("Erro fetch: " + err.message); });
   }
 
   function handleFile(e) {
