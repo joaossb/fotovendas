@@ -13,25 +13,31 @@ export default async function handler(req, res) {
   res.setHeader("Access-Control-Allow-Headers", "Content-Type");
 
   const stripe = new Stripe(process.env.STRIPE_SECRET_KEY);
-  const { plan, userEmail } = req.body;
+  const { plan, userEmail, userId } = req.body;
 
   const priceMap = {
-    basic: process.env.STRIPE_PRICE_BASIC,
-    pro: process.env.STRIPE_PRICE_PRO,
+    starter: { priceId: process.env.STRIPE_PRICE_BASIC,  credits: 10  },
+    pro:     { priceId: process.env.STRIPE_PRICE_PRO,    credits: 30  },
+    agency:  { priceId: process.env.STRIPE_PRICE_AGENCY, credits: 50  },
   };
 
-  const priceId = priceMap[plan];
-  if (!priceId) return res.status(400).json({ error: "Plano inválido." });
+  console.log("Plan recebido:", plan);
+console.log("PriceMap keys:", Object.keys(priceMap));
+console.log("Selected:", priceMap[plan]);
+console.log("STRIPE_PRICE_BASIC:", process.env.STRIPE_PRICE_BASIC ? "ok" : "undefined");
+
+  const selected = priceMap[plan];
+  if (!selected) return res.status(400).json({ error: "Plano inválido." });
 
   try {
     const session = await stripe.checkout.sessions.create({
       payment_method_types: ["card"],
-      mode: "subscription",
+      mode: "payment",                  // pagamento único
       customer_email: userEmail,
-      line_items: [{ price: priceId, quantity: 1 }],
-      success_url: `${req.headers.origin}/sucesso?session_id={CHECKOUT_SESSION_ID}`,
-      cancel_url: `${req.headers.origin}/planos`,
-      metadata: { plan, userEmail },
+      line_items: [{ price: selected.priceId, quantity: 1 }],
+      success_url: `${req.headers.origin}/?payment=success&plan=${plan}&credits=${selected.credits}&userId=${userId}`,
+      cancel_url:  `${req.headers.origin}/?payment=cancelled`,
+      metadata: { plan, userEmail, userId, credits: String(selected.credits) },
     });
 
     return res.status(200).json({ url: session.url });
