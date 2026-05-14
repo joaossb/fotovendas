@@ -122,14 +122,14 @@ function FAQItem({ q, r }) {
   );
 }
 
-function AuthScreen({ onSuccess, onBack }) {
+function AuthScreen({ onSuccess, onBack, linkExpirado }) {
   const [mode,     setMode]     = useState("login");
   const [email,    setEmail]    = useState("");
   const [password, setPassword] = useState("");
   const [loading,  setLoading]  = useState(false);
   const [error,    setError]    = useState(null);
-  const [msg,      setMsg]      = useState(null);
-  const [forgotPw, setForgotPw] = useState(false);
+  const [msg,      setMsg]      = useState(linkExpirado ? "Seu link expirou. Solicite um novo abaixo." : null);
+  const [forgotPw, setForgotPw] = useState(linkExpirado ? true : false);
 
   async function handleSubmit() {
     if (!email || (!forgotPw && !password)) { setError("Preencha todos os campos."); return; }
@@ -213,7 +213,7 @@ function AuthScreen({ onSuccess, onBack }) {
 }
 
 // ── TELA DE REDEFINIÇÃO DE SENHA ─────────────────────────────
-function ResetPasswordScreen() {
+function ResetPasswordScreen({ onDone }) {
   const [password,  setPassword]  = useState("");
   const [password2, setPassword2] = useState("");
   const [loading,   setLoading]   = useState(false);
@@ -229,7 +229,7 @@ function ResetPasswordScreen() {
     if (error) { setError("Erro ao redefinir senha. Tente novamente."); setLoading(false); return; }
     setSuccess(true);
     setLoading(false);
-    setTimeout(function() { window.location.href = "/"; }, 3000);
+    setTimeout(function() { onDone && onDone(); }, 2500);
   }
 
   return (
@@ -390,11 +390,26 @@ export default function App() {
     </div>
   );
 
-  // Detectar fluxo de redefinição de senha via hash da URL
-  const isResetFlow = typeof window !== "undefined" && window.location.hash.includes("type=recovery");
-  if (isResetFlow) return <ResetPasswordScreen />;
+  const [isReset,     setIsReset]     = useState(false);
+  const [linkError,   setLinkError]   = useState(false);
 
-  if (showAuth) return <AuthScreen onSuccess={function() { setShowAuth(false); setWelcome(true); setScreen("app"); }} onBack={function() { setShowAuth(false); }} />;
+  // Detectar fluxo de redefinição de senha
+  useEffect(function() {
+    var hash = window.location.hash;
+    if (hash.includes("type=recovery")) {
+      setIsReset(true);
+      supabase.auth.getSession().then(function({ data: { session } }) {
+        if (session) { setUser(session.user); }
+      });
+    } else if (hash.includes("error_code=otp_expired") || hash.includes("error=access_denied")) {
+      window.history.replaceState(null, "", "/");
+      setLinkError(true);
+      setShowAuth(true);
+    }
+  }, []);
+
+  if (isReset) return <ResetPasswordScreen onDone={function() { setIsReset(false); setScreen("home"); }} />;
+  if (showAuth) return <AuthScreen onSuccess={function() { setShowAuth(false); setWelcome(true); setScreen("app"); }} onBack={function() { setShowAuth(false); }} linkExpirado={linkError} />;
 
   // ── HOME ─────────────────────────────────────────────────────
   if (screen === "home") return (
