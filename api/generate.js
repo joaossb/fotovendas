@@ -1,42 +1,24 @@
 export const config = { maxDuration: 60 };
 
-const PROMPTS = {
-  cardapio: `You are a professional food photographer specialized in delivery menus, restaurant apps, Just Eat, Uber Eats, iFood, Instagram, WhatsApp and digital menus.
-Analyze the reference image carefully. Write one complete prompt in English, max 130 words, to create a professional photo of this exact same food or beverage item.
-The reference image is the main source of truth. Preserve the same product, ingredients, portion logic, shape, topping distribution and presentation style. Do not add ingredients that are not visible or described. Improve lighting, texture, sharpness, background and appetite appeal without making it fake or misleading.
-Adapt the style to the product category: pizza, burger, sushi, pasta, cake, grilled food, homemade meal, drink, dessert, etc.
-Use realistic commercial food photography, clear delivery-app readability, appetizing texture, professional lighting, believable plating or packaging, and a background appropriate to the product.
-Include a short negative prompt at the end.
-Start with: Professional delivery menu food photo of.
-Reply ONLY with the prompt.`,
+const PROMPT = `Use the provided reference image as the primary visual guide. Recreate the exact same food product shown in the image, preserving the real ingredients, portion size, preparation style, structure, and overall identity of the dish. Do not invent a different meal, do not gourmetize unrealistically, and do not add ingredients that are not visible in the reference image.
 
-  joias: `You are a professional commercial jewelry photographer specialized in lifestyle and wearable product shots.
-Analyze the reference image carefully. Write one complete prompt in English, max 130 words, to create a commercial lifestyle photo of this exact same jewelry piece being worn by a model.
-The reference image is the main source of truth. Preserve the exact design, geometry, proportions, metal color, gemstone type, gemstone color, setting style, texture and craftsmanship of the jewelry. Do not redesign, simplify, add stones, remove stones, or alter the piece in any way.
-The jewelry must be shown worn on the correct body part: earring on an ear, ring on a finger, bracelet on a wrist, necklace on a neck. Frame the shot as a close commercial crop showing only the jewelry and the body part it is worn on. Do not show the model's face or full body.
-Use soft natural or studio lighting, clean neutral background, sharp focus on the jewelry, realistic skin texture, elegant and commercial presentation.
-Include a short negative prompt at the end.
-Start with: Professional commercial jewelry lifestyle photo of.
-Reply ONLY with the prompt.`,
+Create a more aggressive, high-conversion food photograph optimized for delivery apps like iFood, Uber Eats, Just Eat, DoorDash, Instagram food ads, and digital menus. The image must feel highly appetizing, immediate, craveable, and professional, while still believable for a real restaurant product.
 
-  curriculo: `You are a professional portrait photographer specialized in LinkedIn, resume and corporate headshots.
-Analyze the reference photo carefully. Write one complete prompt in English, max 130 words, to create a professional headshot of this same person.
-Preserve the person's real facial structure, age impression, hairstyle, skin tone, expression identity and overall appearance. Do not beautify excessively, change facial features, change age, alter body shape, or create an unrealistic model-like version.
-Improve only the professional presentation: clean background, posture, lighting, clothing polish, sharpness, natural confidence and corporate credibility.
-Use a neutral light gray, white, or softly blurred office-style background; professional studio lighting; soft natural shadows; sharp focus on the face; realistic skin texture; natural and approachable expression; business-appropriate attire.
-Include a short negative prompt at the end.
-Start with: Professional corporate headshot photo of.
-Reply ONLY with the prompt.`,
+Composition: tight close-up or medium-close framing, food dominating most of the frame, minimal empty space, optimized for thumbnail readability. Use a strong hero angle depending on the product: 45-degree angle for plated meals, burgers, meats and pasta; slight top-down for pizzas, sushi, bowls and trays; macro emphasis when texture is important. The main product must be the clear visual focus.
 
-  ecommerce: `You are a professional e-commerce product photographer specialized in marketplace and online store listings.
-Analyze the reference image carefully. Write one complete prompt in English, max 130 words, to create a clean e-commerce photo of this exact same product.
-The reference image is the main source of truth. Preserve the product's exact type, shape, proportions, material, color, labels, details, packaging, texture and visible features. Do not redesign, change branding, remove important details, add accessories, or alter the product function.
-Improve only the photographic quality: clean lighting, sharpness, perspective, background, color accuracy and listing clarity.
-Use a pure white or very light neutral background, even studio lighting, minimal shadow, centered composition, full product visibility, realistic scale, crisp edges and Amazon/Shopify marketplace quality.
-Include a short negative prompt at the end.
-Start with: Professional e-commerce product photo of.
-Reply ONLY with the prompt.`,
-};
+Lighting: stronger directional lighting with controlled shadows and realistic highlights, creating depth and appetite without looking artificial. Use cinematic but believable food lighting, emphasizing texture and freshness.
+
+Texture emphasis: highlight the most desirable characteristics naturally visible in the product — grilled surfaces, crispy edges, melted cheese, juicy meat fibers, fluffy rice grains, creamy sauces, toasted crusts, fresh vegetables, crunchy breading, glossy chocolate, airy dough, steam softness, etc — only when coherent with the original product.
+
+Background: clean and controlled environment matching the product category. Rustic wood for barbecue or homemade food, neutral dark surfaces for premium dishes, light clean surfaces for bakery or healthy food, subtle contextual styling when appropriate. Avoid visual clutter.
+
+Camera style: ultra-realistic professional food photography, full-frame camera, 50mm or 85mm lens, shallow depth of field, detailed texture rendering, realistic optical behavior, natural perspective.
+
+Post-processing: refined contrast, subtle sharpening on textures, controlled warmth, realistic color grading, high detail, premium commercial finish, no exaggerated HDR or artificial saturation.
+
+Goal: create immediate appetite appeal and maximize conversion in delivery app thumbnails while remaining realistic and faithful to the actual restaurant product shown in the original image.
+
+Negative Prompt: Do not change the core product. Do not add ingredients, sauces, garnishes, side dishes, decorations, or drinks not visible in the reference image. Avoid fake food-porn styling, exaggerated steam, excessive gloss, unrealistic cheese pulls, oversized portions, artificial textures, CGI look, plastic-looking food, stock-photo appearance, distorted anatomy, over-sharpening, oversaturation, fine-dining plating incompatible with delivery, unrealistic lighting, messy composition, or obvious AI artifacts.`;
 
 export default async function handler(req, res) {
   if (req.method === "OPTIONS") {
@@ -52,90 +34,35 @@ export default async function handler(req, res) {
   res.setHeader("Access-Control-Allow-Origin", "*");
   res.setHeader("Access-Control-Allow-Headers", "Content-Type");
 
-  const { imageBase64, mimeType, category, plan, descricao } = req.body;
+  const { imageBase64, mimeType, descricao } = req.body;
 
-  if (!imageBase64 || !category) {
-    return res.status(400).json({ error: "Imagem e categoria sao obrigatorios." });
+  if (!imageBase64) {
+    return res.status(400).json({ error: "Imagem obrigatoria." });
   }
 
-  const systemPrompt = PROMPTS[category];
-  if (!systemPrompt) {
-    return res.status(400).json({ error: "Categoria invalida: " + category });
-  }
+  // Se o cliente descreveu o prato, adicionamos como contexto extra
+  const finalPrompt = descricao && descricao.trim()
+    ? `The dish in the reference image is: ${descricao.trim()}. ` + PROMPT
+    : PROMPT;
 
-  // Passo 1: Claude analisa a imagem e gera o prompt
-  let prompt;
-  try {
-    const claudeRes = await fetch("https://api.anthropic.com/v1/messages", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        "x-api-key": process.env.ANTHROPIC_API_KEY,
-        "anthropic-version": "2023-06-01",
-      },
-      body: JSON.stringify({
-        model: "claude-haiku-4-5-20251001",
-        max_tokens: 300,
-        messages: [
-          {
-            role: "user",
-            content: [
-              {
-                type: "image",
-                source: {
-                  type: "base64",
-                  media_type: mimeType || "image/jpeg",
-                  data: imageBase64,
-                },
-              },
-              {
-                type: "text",
-                text: systemPrompt + (descricao ? "\n\nNote from the owner about this dish: " + descricao + ". Use this only to confirm your visual analysis — the image is the main reference." : ""),
-              },
-            ],
-          },
-        ],
-      }),
-    });
-
-    const claudeData = await claudeRes.json();
-    if (claudeData.error) {
-      throw new Error(claudeData.error.message);
-    }
-    const textBlock = claudeData.content && claudeData.content.find(function(b) { return b.type === "text"; });
-    prompt = textBlock && textBlock.text && textBlock.text.trim();
-    if (!prompt) {
-      throw new Error("Nao foi possivel analisar a imagem.");
-    }
-  } catch (err) {
-    return res.status(500).json({ error: "Erro ao analisar produto: " + err.message });
-  }
-
-  // Passo 2: Gemini gera a imagem
-  const model = plan === "pro"
-    ? "gemini-3-pro-image-preview"
-    : "gemini-3.1-flash-image-preview";
-
-  const endpoint = "https://generativelanguage.googleapis.com/v1beta/models/" + model + ":generateContent?key=" + process.env.GOOGLE_AI_KEY;
+  const endpoint = "https://generativelanguage.googleapis.com/v1beta/models/gemini-3.1-flash-image-preview:generateContent?key=" + process.env.GOOGLE_AI_KEY;
 
   try {
     const geminiRes = await fetch(endpoint, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
-        contents: [
-          {
-            parts: [
-              { text: prompt },
-              {
-                inline_data: {
-                  mime_type: mimeType || "image/jpeg",
-                  data: imageBase64,
-                },
+        contents: [{
+          parts: [
+            { text: finalPrompt },
+            {
+              inline_data: {
+                mime_type: mimeType || "image/jpeg",
+                data: imageBase64,
               },
-            ],
-          },
-        ],
+            },
+          ],
+        }],
         generationConfig: { responseModalities: ["IMAGE", "TEXT"] },
       }),
     });
@@ -168,7 +95,6 @@ export default async function handler(req, res) {
     return res.status(200).json({
       image: imgPart.inlineData.data,
       mimeType: imgPart.inlineData.mimeType,
-      prompt: prompt,
     });
   } catch (err) {
     return res.status(500).json({ error: "Erro ao gerar imagem: " + err.message });
