@@ -362,7 +362,12 @@ export default function App() {
     </div>
   );
 
-  if (showAuth) return <AuthScreen onSuccess={function() { setShowAuth(false); setWelcome(true); setScreen("app"); }} onBack={function() { setShowAuth(false); }} />;
+  if (showAuth) return <AuthScreen onSuccess={function() {
+  setShowAuth(false);
+  var jaViu = localStorage.getItem("welcome_" + user?.id);
+  if (!jaViu) setWelcome(true);
+  setScreen("app");
+}}
 
   // HOME
   if (screen === "home") return (
@@ -558,7 +563,10 @@ export default function App() {
         {welcome && (
           <div style={{ background: "linear-gradient(135deg,#0a2a0a,#0d350d)", border: "1px solid #1a5a1a", borderRadius: 14, padding: "14px 18px", marginBottom: 20, display: "flex", justifyContent: "space-between", alignItems: "center" }}>
             <span style={{ fontSize: 14, color: "#88ff88" }}>Bem-vindo! Voce ganhou <strong>1 credito gratis</strong> para comecar.</span>
-            <span style={{ color: "#1a5a1a", cursor: "pointer", fontSize: 20, fontWeight: 700 }} onClick={() => setWelcome(false)}>x</span>
+            <span style={{ color: "#1a5a1a", cursor: "pointer", fontSize: 20, fontWeight: 700 }} onClick={() => {
+  setWelcome(false);
+  if (user) localStorage.setItem("welcome_" + user.id, "1");
+}}>x</span>
           </div>
         )}
 
