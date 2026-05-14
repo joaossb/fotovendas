@@ -11,26 +11,26 @@ const ANTES_DEPOIS = [
 ];
 
 const PLANS = [
-  { id: "starter", name: "Kit Inicio",   credits: 10, price: "R$ 29,90",  perUnit: "R$ 2,99/foto", badge: null,
-    features: ["10 fotos profissionais", "Pronto para iFood e redes sociais", "Creditos sem prazo de validade"] },
-  { id: "pro",     name: "Kit Negocio",  credits: 30, price: "R$ 74,90",  perUnit: "R$ 2,49/foto", badge: "Mais vendido",
-    features: ["30 fotos profissionais", "IA treinada para gastronomia", "Pronto para iFood e redes sociais", "Creditos sem prazo de validade"] },
+  { id: "starter", name: "Kit Início",   credits: 10, price: "R$ 29,90",  perUnit: "R$ 2,99/foto", badge: null,
+    features: ["10 fotos profissionais", "Pronto para iFood e redes sociais", "Créditos sem prazo de validade"] },
+  { id: "pro",     name: "Kit Negócio",  credits: 30, price: "R$ 74,90",  perUnit: "R$ 2,49/foto", badge: "Mais vendido",
+    features: ["30 fotos profissionais", "IA treinada para gastronomia", "Pronto para iFood e redes sociais", "Créditos sem prazo de validade"] },
   { id: "agency",  name: "Kit Completo", credits: 50, price: "R$ 109,90", perUnit: "R$ 2,19/foto", badge: "Melhor custo",
-    features: ["50 fotos profissionais", "IA treinada para gastronomia", "Maior economia por foto", "Pronto para iFood e redes sociais", "Creditos sem prazo de validade"] },
+    features: ["50 fotos profissionais", "IA treinada para gastronomia", "Maior economia por foto", "Pronto para iFood e redes sociais", "Créditos sem prazo de validade"] },
 ];
 
 const DEPOIMENTOS = [
   { nome: "Carla S.", negocio: "Doceria Carla", texto: "Minhas vendas no iFood aumentaram depois que troquei as fotos. Os clientes comentam como tudo parece mais apetitoso!", estrelas: 5 },
-  { nome: "Joao R.",  negocio: "Hamburgueria do Joao", texto: "Eu mesmo tirava as fotos com o celular. Agora parecem de restaurante profissional. Incrivel!", estrelas: 5 },
-  { nome: "Ana P.",   negocio: "Marmitas da Ana", texto: "Uso toda semana para atualizar o cardapio do WhatsApp. Meus clientes adoram as fotos novas.", estrelas: 5 },
+  { nome: "João R.",  negocio: "Hamburgueria do João", texto: "Eu mesmo tirava as fotos com o celular. Agora parecem de restaurante profissional. Incrível!", estrelas: 5 },
+  { nome: "Ana P.",   negocio: "Marmitas da Ana", texto: "Uso toda semana para atualizar o cardápio do WhatsApp. Meus clientes adoram as fotos novas.", estrelas: 5 },
 ];
 
 const FAQ = [
-  { q: "Como funciona?", r: "Voce envia a foto do seu prato tirada pelo celular. Nossa IA recria a iluminacao e o cenario, entregando uma foto profissional pronta para iFood e redes sociais em segundos." },
-  { q: "Os creditos expiram?", r: "Nao! Seus creditos sao vitalicos. Compre hoje e use quando quiser - sem pressao." },
-  { q: "O resultado e fiel ao meu prato?", r: "Sim. Nossa IA e treinada para gastronomia e preserva os ingredientes, porcoes e apresentacao do prato original." },
-  { q: "Nao gostei da foto gerada, o que eu faco?", r: "Normalmente o resultado e muito fiel ao prato original, mas eventualmente pode nao ser exatamente o que voce tinha em mente. Nesse caso, descreva ou melhore a descricao do seu produto no campo de texto e tente novamente - a IA usa essa informacao para gerar um resultado mais preciso. Lembre-se que cada geracao consome 1 credito." },
-  { q: "Precisa instalar algum app?", r: "Nao. Funciona direto no navegador, no celular ou no computador." },
+  { q: "Como funciona?", r: "Você envia a foto do seu prato tirada pelo celular. Nossa IA recria a iluminação e o cenário, entregando uma foto profissional pronta para iFood e redes sociais em segundos." },
+  { q: "Os créditos expiram?", r: "Não! Seus créditos são vitalícios. Compre hoje e use quando quiser — sem pressão." },
+  { q: "O resultado é fiel ao meu prato?", r: "Sim. Nossa IA é treinada para gastronomia e preserva os ingredientes, porções e apresentação do prato original." },
+  { q: "Não gostei da foto gerada, o que eu faço?", r: "Normalmente o resultado é muito fiel ao prato original, mas eventualmente pode não ser exatamente o que você tinha em mente. Nesse caso, descreva ou melhore a descrição do seu produto no campo de texto e tente novamente — a IA usa essa informação para gerar um resultado mais preciso. Lembre-se que cada geração consome 1 crédito." },
+  { q: "Precisa instalar algum app?", r: "Não. Funciona direto no navegador, no celular ou no computador." },
 ];
 
 const COR = { laranja: "#FF5A1F", escuro: "#0D0D0D", card: "#1A1A1A", fundo: "#F9F5F0" };
@@ -39,7 +39,7 @@ function Logo({ onClick, dark }) {
   return (
     <div style={{ display: "flex", alignItems: "center", gap: 8, cursor: "pointer" }} onClick={onClick}>
       <div style={{ width: 32, height: 32, borderRadius: 9, background: "linear-gradient(135deg,#FF5A1F,#FFBA08)", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 16 }}>🍽️</div>
-      <span style={{ fontWeight: 800, fontSize: 17, color: dark ? "#fff" : COR.escuro, letterSpacing: -.4 }}>foto<span style={{ color: COR.laranja }}>cardapio</span></span>
+      <span style={{ fontWeight: 800, fontSize: 17, color: dark ? "#fff" : COR.escuro, letterSpacing: -.4 }}>foto<span style={{ color: COR.laranja }}>cardápio</span></span>
     </div>
   );
 }
@@ -158,13 +158,13 @@ function AuthScreen({ onSuccess, onBack }) {
         <div style={{ textAlign: "center", marginBottom: 32 }}>
           <div style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: 8, marginBottom: 20 }}>
             <div style={{ width: 36, height: 36, borderRadius: 10, background: "linear-gradient(135deg,#FF5A1F,#FFBA08)", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 18 }}>🍽️</div>
-            <span style={{ fontWeight: 800, fontSize: 20, color: "#fff" }}>foto<span style={{ color: COR.laranja }}>cardapio</span></span>
+            <span style={{ fontWeight: 800, fontSize: 20, color: "#fff" }}>foto<span style={{ color: COR.laranja }}>cardápio</span></span>
           </div>
           <h2 style={{ fontSize: 22, fontWeight: 800, color: "#fff", marginBottom: 6 }}>
-            {forgotPw ? "Recuperar senha" : mode === "login" ? "Entrar na sua conta" : "Criar conta gratis"}
+            {forgotPw ? "Recuperar senha" : mode === "login" ? "Entrar na sua conta" : "Criar conta grátis"}
           </h2>
           <p style={{ fontSize: 14, color: "#888" }}>
-            {forgotPw ? "Enviaremos um link para redefinir sua senha" : mode === "login" ? "Bem-vindo de volta!" : "Ganhe 1 foto gratis ao se cadastrar"}
+            {forgotPw ? "Enviaremos um link para redefinir sua senha" : mode === "login" ? "Bem-vindo de volta!" : "Ganhe 1 foto grátis ao se cadastrar"}
           </p>
         </div>
         <div style={{ background: COR.card, borderRadius: 20, padding: "32px 28px", border: "1px solid #2a2a2a" }}>
@@ -190,7 +190,7 @@ function AuthScreen({ onSuccess, onBack }) {
           {error && <div style={{ background: "#2a0a0a", border: "1px solid #5a1a1a", borderRadius: 10, padding: "10px 14px", fontSize: 13, color: "#ff8888", marginBottom: 16 }}>❌ {error}</div>}
           {msg   && <div style={{ background: "#0a2a0a", border: "1px solid #1a5a1a", borderRadius: 10, padding: "10px 14px", fontSize: 13, color: "#88ff88", marginBottom: 16 }}>✅ {msg}</div>}
           <BtnPrimary onClick={handleSubmit} disabled={loading} style={{ width: "100%", padding: "14px", fontSize: 15 }}>
-            {loading ? "Aguarde..." : forgotPw ? "Enviar link de recuperacao" : mode === "login" ? "Entrar" : "Criar conta gratis"}
+            {loading ? "Aguarde..." : forgotPw ? "Enviar link de recuperação" : mode === "login" ? "Entrar" : "Criar conta grátis"}
           </BtnPrimary>
           {forgotPw ? (
             <div style={{ textAlign: "center", marginTop: 20 }}>
@@ -295,18 +295,14 @@ export default function App() {
 
   function startCheckout(planId) {
     if (!user) { setShowAuth(true); return; }
-    alert("Iniciando checkout para plano: " + planId);
     fetch("/api/checkout", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ plan: planId, userEmail: user.email, userId: user.id }),
     })
     .then(function(r) { return r.json(); })
-    .then(function(d) {
-      if (d.url) { window.location.href = d.url; }
-      else { alert("Erro: " + JSON.stringify(d)); }
-    })
-    .catch(function(err) { alert("Erro fetch: " + err.message); });
+    .then(function(d) { if (d.url) window.location.href = d.url; })
+    .catch(function() { alert("Erro ao iniciar pagamento. Tente novamente."); });
   }
 
   function handleFile(e) {
