@@ -362,12 +362,7 @@ export default function App() {
     </div>
   );
 
-  if (showAuth) return <AuthScreen onSuccess={function() {
-  setShowAuth(false);
-  var jaViu = localStorage.getItem("welcome_" + user?.id);
-  if (!jaViu) setWelcome(true);
-  setScreen("app");
-}}
+ if (showAuth) return <AuthScreen onSuccess={function() { setShowAuth(false); if (!localStorage.getItem("welcome_shown")) { setWelcome(true); localStorage.setItem("welcome_shown", "1"); } setScreen("app"); }} onBack={function() { setShowAuth(false); }} />;
 
   // HOME
   if (screen === "home") return (
