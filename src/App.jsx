@@ -11,9 +11,9 @@ const ANTES_DEPOIS = [
 ];
 
 const PLANS = [
-  { id: "starter", name: "Kit Início",  credits: 10,  price: "R$ 19,90", perUnit: "R$ 1,99/foto", badge: null,          features: ["10 gerações de imagem", "IA especializada cardápio", "Créditos que não expiram", "1 regeneração por foto"] },
-  { id: "pro",     name: "Kit Negócio", credits: 30,  price: "R$ 44,90", perUnit: "R$ 1,49/foto", badge: "Mais vendido", features: ["30 gerações de imagem", "IA de alta fidelidade", "Formatos iFood e Stories", "1 regeneração por foto"] },
-  { id: "agency",  name: "Kit Agência", credits: 100, price: "R$ 99,90", perUnit: "R$ 0,99/foto", badge: "Melhor custo", features: ["100 gerações de imagem", "IA máxima qualidade", "Uso em anúncios pagos", "1 regeneração por foto"] },
+  { id: "starter", name: "Kit Início",  credits: 10,  price: "R$ 29,90", perUnit: "R$ 2,99/foto", badge: null,          features: ["10 gerações de imagem", "IA especializada cardápio", "Créditos que não expiram", "Download instantâneo"] },
+  { id: "pro",     name: "Kit Negócio", credits: 30,  price: "R$ 74,90", perUnit: "R$ 2,49/foto", badge: "Mais vendido", features: ["30 gerações de imagem", "IA de alta fidelidade", "Créditos que não expiram", "Download instantâneo"] },
+  { id: "agency",  name: "Kit Agência", credits: 50, price: "R$ 109,90", perUnit: "R$ 2,19/foto", badge: "Melhor custo", features: ["50 gerações de imagem", "IA máxima qualidade", "Créditos que não expiram", "Download instantâneo"] },
 ];
 
 const DEPOIMENTOS = [
